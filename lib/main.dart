@@ -110,14 +110,7 @@ class MyApp extends StatelessWidget {
 
 
           },
-          home: auth.isAuth
-              ? HomeScreen()
-              : FutureBuilder(
-                  future: auth.tryAutoLogin(),
-                  builder: (ctx, snapshot) =>
-                      snapshot.connectionState == ConnectionState.waiting
-                          ? SplashScreen()
-                          : AuthScreen()),
+          home: SplashScreen()
         ),
       ),
     );
