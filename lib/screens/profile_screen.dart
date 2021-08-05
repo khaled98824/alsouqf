@@ -198,7 +198,7 @@ class _ProfileState extends State<Profile> {
                             InkWell(
                               onTap: () {
                                 //edit account
-                                Navigator.popAndPushNamed(context, EditUserInfo.routeName);
+                                Navigator.pushNamed(context, EditUserInfo.routeName);
                               },
                               child: Container(
                                   width: 230,

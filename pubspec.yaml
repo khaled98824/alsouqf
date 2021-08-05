@@ -52,6 +52,9 @@ dependencies:
   flutter_native_splash: ^1.2.0
   google_sign_in:
   lottie: ^1.1.0
+  sign_in_with_apple: ^3.0.0
+  sign_in_apple:
+  flutter_signin_button:
 
 
 dev_dependencies:

@@ -6,6 +6,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import 'package:flutter_signin_button/button_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -448,24 +450,20 @@ class _AuthCardState extends State<AuthCard>
                     ),
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      alignment: Platform.isAndroid? WrapAlignment.center:WrapAlignment.spaceAround,
+                      alignment: Platform.isAndroid
+                          ? WrapAlignment.center
+                          : WrapAlignment.spaceAround,
                       children: [
-                        ElevatedButton.icon(
-                          onPressed: () {
-                              Provider.of<Auth>(context,listen: false).googleLogin();
-
-                          },
-                          icon: Icon(FontAwesomeIcons.google),
-                          label: Text('Sign in'),
-                        ),
+                       SignInButton(Buttons.Google, onPressed:()=> Provider.of<Auth>(context, listen: false)
+                           .googleLogin()),
                         SizedBox(
                           width: 10,
                         ),
-                        Platform.isIOS?ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: Icon(FontAwesomeIcons.apple),
-                          label: Text('Sign in'),
-                        ):Container()
+                        Platform.isIOS
+                            ? SignInButton(Buttons.AppleDark,
+                                onPressed: () => Provider.of<Auth>(context,listen: false)
+                                    .signInWithApple())
+                            : Container()
                       ],
                     )
                   ],

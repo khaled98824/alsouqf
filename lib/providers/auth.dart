@@ -1,10 +1,14 @@
 // @dart=2.9
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:sign_in_apple/sign_in_apple.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../models/http_exception.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -174,7 +178,6 @@ class Auth with ChangeNotifier {
       _authTimer = null;
       googleSignIn.disconnect();
       FirebaseAuth.instance.signOut();
-
     }
     notifyListeners();
 
@@ -208,27 +211,62 @@ class Auth with ChangeNotifier {
       accessToken: googleAuth.accessToken,
     );
 
-    await FirebaseAuth.instance.signInWithCredential(credential).then((value) => {
-      _token = googleAuth.idToken,
-      uid2= googleUser.id,
-      _userId = googleUser.id,
-      nameUser =googleUser.displayName,
-      emailUser =googleUser.email,
-      isAuth ,
-      imageUserUrl = googleUser.photoUrl,
-    Firestore.instance.collection('users').document(_userId).setData({
-    'token': _token,
-    'name': nameUser,
-    'user_uid': _userId,
-    'area': 'google',
-    'email': emailUser,
-    'password': 'google',
-    "time": DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now()),
-    'imageUrl': imageUserUrl,
-    }),
-    });
+    await FirebaseAuth.instance
+        .signInWithCredential(credential)
+        .then((value) => {
+              _token = googleAuth.idToken,
+              uid2 = googleUser.id,
+              _userId = googleUser.id,
+              nameUser = googleUser.displayName,
+              emailUser = googleUser.email,
+              isAuth,
+              imageUserUrl = googleUser.photoUrl,
+              Firestore.instance.collection('users').document(_userId).setData({
+                'token': _token,
+                'name': nameUser,
+                'user_uid': _userId,
+                'area': 'google',
+                'email': emailUser,
+                'password': 'google',
+                "time": DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now()),
+                'imageUrl': imageUserUrl,
+              }),
+            });
     isAuth;
     print(_user.email);
     notifyListeners();
+  }
+
+  //apple sign in
+  Future<void> signInWithApple() async {
+    final appleIdCredential =
+        await SignInWithApple.getAppleIDCredential(scopes: [
+      AppleIDAuthorizationScopes.email,
+      AppleIDAuthorizationScopes.fullName,
+    ]);
+    final oAuthProvider = OAuthProvider(providerId: 'apple.com');
+    final credential = oAuthProvider.getCredential(
+        idToken: appleIdCredential.identityToken,
+        accessToken: appleIdCredential.authorizationCode);
+    await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
+      _token = appleIdCredential.identityToken;
+      uid2 = appleIdCredential.userIdentifier;
+      _userId = appleIdCredential.userIdentifier;
+      nameUser = appleIdCredential.familyName;
+      emailUser = appleIdCredential.email;
+      isAuth;
+      imageUserUrl = appleIdCredential.state;
+      Firestore.instance.collection('users').document(_userId).setData({
+      'token': _token,
+      'name': nameUser,
+      'user_uid': _userId,
+      'area': 'Apple',
+      'email': emailUser,
+      'password': 'Apple',
+      "time": DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now()),
+      'imageUrl': 'https://firebasestorage.googleapis.com/v0/b/souq-alfurat-89023.appspot.com/o/png-clipart-apple-icon-format-computer-icons-graphics-ericsson-heart-logo.png?alt=media&token=48827bf4-2795-4051-b6fe-4a15adac94f7',
+      });
+      notifyListeners();
+    });
   }
 }
