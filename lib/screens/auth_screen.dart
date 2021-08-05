@@ -448,11 +448,10 @@ class _AuthCardState extends State<AuthCard>
                     ),
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      alignment: WrapAlignment.spaceAround,
+                      alignment: Platform.isAndroid? WrapAlignment.center:WrapAlignment.spaceAround,
                       children: [
                         ElevatedButton.icon(
                           onPressed: () {
-
                               Provider.of<Auth>(context,listen: false).googleLogin();
 
                           },
@@ -462,11 +461,11 @@ class _AuthCardState extends State<AuthCard>
                         SizedBox(
                           width: 10,
                         ),
-                        ElevatedButton.icon(
+                        Platform.isIOS?ElevatedButton.icon(
                           onPressed: () {},
                           icon: Icon(FontAwesomeIcons.apple),
                           label: Text('Sign in'),
-                        )
+                        ):Container()
                       ],
                     )
                   ],
