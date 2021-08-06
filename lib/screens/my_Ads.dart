@@ -1,4 +1,5 @@
 // @dart=2.9
+import 'package:alsouqf/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -83,6 +84,7 @@ class _MyAdsState extends State<MyAds> {
                           )));
             }
           }),
+      bottomNavigationBar: BottomNavB(),
     );
   }
 

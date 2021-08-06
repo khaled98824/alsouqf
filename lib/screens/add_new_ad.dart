@@ -1,6 +1,13 @@
 // @dart=2.9
 import 'dart:async';
 import 'dart:io';
+import 'package:alsouqf/models/action_chip_data.dart';
+import 'package:alsouqf/models/chip_data.dart';
+import 'package:alsouqf/models/filter_chip_data.dart';
+import 'package:alsouqf/providers/action_chips.dart';
+import 'package:alsouqf/providers/chips.dart';
+import 'package:alsouqf/providers/filter_chips.dart';
+import 'package:alsouqf/service/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +22,8 @@ import '../providers/ads_provider.dart';
 import '../providers/auth.dart';
 import '../screens/home.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+
+import '../utils.dart';
 
 class AddNewAd extends StatefulWidget {
   static const routeName = "AddNewAd";
@@ -81,7 +90,7 @@ class _AddNewAdState extends State<AddNewAd> {
     if (widget.isEdit == true) getEditInfo();
   }
 
-  bool choseCategory = true;
+  bool choseCategory = false;
   bool choseCategory2 = true;
   bool statusShow = true;
   bool showAreaTextField = false;
@@ -202,6 +211,7 @@ class _AddNewAdState extends State<AddNewAd> {
   TextEditingController priceController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController areaController = TextEditingController();
+  LocationService _locationService = LocationService();
 
   final _formkey = GlobalKey<FormState>();
 
@@ -222,8 +232,6 @@ class _AddNewAdState extends State<AddNewAd> {
     setState(() {
       urlImages.add(imageUrl);
       loadingImage = false;
-
-      print(urlImages);
 
       //show
       if (image == null) {
@@ -342,7 +350,6 @@ class _AddNewAdState extends State<AddNewAd> {
         'likes': oldData['likes'],
         'creatorId': oldData['creatorId'],
         'creatorName': oldData['creatorName']
-
       };
       //urlImages = oldData['imagesUrl'];
       category = oldData['category'];
@@ -363,21 +370,21 @@ class _AddNewAdState extends State<AddNewAd> {
     newZList.clear();
     nameController.clear();
 
-      image = null;
-      image2 = null;
-      image3 = null;
-      image4 = null;
-      image5 = null;
-      image6 = null;
-      image7 = null;
-      imageUrl = null;
-      imageUrl2 = null;
-      imageUrl3 = null;
-      imageUrl4 = null;
-      imageUrl5 = null;
-      imageUrl6 = null;
-      imageUrl7 = null;
-      urlImages.clear();
+    image = null;
+    image2 = null;
+    image3 = null;
+    image4 = null;
+    image5 = null;
+    image6 = null;
+    image7 = null;
+    imageUrl = null;
+    imageUrl2 = null;
+    imageUrl3 = null;
+    imageUrl4 = null;
+    imageUrl5 = null;
+    imageUrl6 = null;
+    imageUrl7 = null;
+    urlImages.clear();
 
     _initialValues = {
       "date": '',
@@ -420,7 +427,7 @@ class _AddNewAdState extends State<AddNewAd> {
                         ),
                         InkWell(
                           onTap: () {
-                            print(creatorName);
+                            _locationService.sendLocationToDataBase(context);
                           },
                           child: Text(
                             'أضف إعلانك',
@@ -436,7 +443,6 @@ class _AddNewAdState extends State<AddNewAd> {
                               widget.id = '';
                               Navigator.pushReplacementNamed(
                                   context, HomeScreen.routeName);
-                              Navigator.of(context).pop();
                             },
                             child: Icon(
                               Icons.arrow_forward_ios,
@@ -636,20 +642,11 @@ class _AddNewAdState extends State<AddNewAd> {
                         ],
                       ),
                     ),
-                    Padding(padding: EdgeInsets.only(top: 3)),
-                    Container(
-                      width: MediaQuery.of(context).size.width - 5,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(1),
-                        color: Colors.grey[300],
-                      ),
-                    ),
+                    lineBorder(),
                     InkWell(
                       onTap: () {
-                        // ignore: deprecated_member_use
                         setState(() {
-                          choseCategory = true;
+                          choseCategory = !choseCategory;
                         });
                       },
                       child: Row(
@@ -661,7 +658,8 @@ class _AddNewAdState extends State<AddNewAd> {
                             color: Colors.grey[600],
                           ),
                           Padding(
-                              padding: EdgeInsets.only(right: 1),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 3),
                               child: Text(
                                 'ما الذي تريد بيعه أو الإعلان عنه ؟',
                                 textAlign: TextAlign.center,
@@ -673,791 +671,572 @@ class _AddNewAdState extends State<AddNewAd> {
                         ],
                       ),
                     ),
+                    buildFilterChips(),
+                    lineBorder(),
+                    choseFirstChip ? buildActionChips() : Container(),
                     choseCategory
-                        ? Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  alignment: WrapAlignment.end,
-                                  children: <Widget>[
-                                    DropdownButton<String>(
-                                      iconSize: 30,
-                                      style:
-                                          TextStyle(color: Colors.green[800]),
-                                      items: dropItemsCategory
-                                          .map((String selectItem) {
-                                        return DropdownMenuItem(
-                                            value: selectItem,
-                                            child: Text(selectItem));
-                                      }).toList(),
-                                      isExpanded: false,
-                                      dropdownColor: Colors.grey[200],
-                                      iconDisabledColor: Colors.green[800],
-                                      iconEnabledColor: Colors.green[800],
-                                      icon: Padding(
-                                          padding: EdgeInsets.only(
-                                              left: 10, right: 5),
-                                          child: Icon(
-                                            Icons.menu,
-                                            size: 26,
-                                          )),
-                                      onChanged: (String theDate) {
-                                        setState(() {
-                                          dropItemsCategory2 = null;
-                                          dropSelectItemCategory = null;
-                                          dropSelectItemCategory2 = null;
-                                          dropSelectItemCategory = theDate;
-                                          category = dropSelectItemCategory;
-                                          if (dropSelectItemCategory ==
-                                              dropItemsCategory[2]) {
-                                            dropItemsCategory2 =
-                                                dropItemsMobile;
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsMobile[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[1]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 = dropItemsCars;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsCars[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[3]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 =
-                                                dropItemsDevicesAndElectronics;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 =
-                                                dropItemsDevicesAndElectronics[
-                                                    1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[4]) {
-                                            choseCategory2 = false;
-                                            statusShow = false;
-                                            category2 = dropSelectItemCategory;
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[5]) {
-                                            choseCategory2 = true;
-                                            statusShow = false;
-                                            dropItemsCategory2 =
-                                                dropItemsOccupationsAndServices;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 =
-                                                dropItemsOccupationsAndServices[
-                                                    1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[6]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 = dropItemsHome;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsHome[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[7]) {
-                                            choseCategory2 = false;
-                                            statusShow = true;
-                                            category2 = dropSelectItemCategory;
-                                            category = dropSelectItemCategory;
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[8]) {
-                                            choseCategory2 = true;
-                                            statusShow = false;
-                                            dropItemsCategory2 =
-                                                dropItemsLivestocks;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsLivestocks[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[9]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 =
-                                                dropItemsFarming;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsFarming[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[10]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 = dropItemsGames;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsGames[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[11]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 =
-                                                dropItemsClothes;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsClothes[1];
-                                          } else if (dropSelectItemCategory ==
-                                              dropItemsCategory[12]) {
-                                            choseCategory2 = true;
-                                            statusShow = true;
-                                            dropItemsCategory2 = dropItemsFood;
-                                            dropSelectItemCategory2 =
-                                                dropSelectItemCategory2;
-                                            category2 = dropItemsFood[1];
+                        ? Column(
+                            children: [
+                              Wrap(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        right: 10, left: 10, bottom: 2, top: 2),
+                                    child: SizedBox(
+                                      height: 54,
+                                      width: 240,
+                                      child: TextFormField(
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'أدخل إسم لإعلانك';
                                           }
-                                        });
-                                        print(category);
-                                        print(category2);
-                                      },
-                                      value: dropSelectItemCategory,
-                                      elevation: 9,
-                                    ),
-                                    Text(
-                                      ': إختر القسم الرئيسي ',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontFamily:
-                                              'Montserrat-Arabic Regular',
-                                          height: 0.5),
-                                    ),
-                                  ],
-                                ),
-                                choseCategory2
-                                    ? Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        alignment: WrapAlignment.end,
-                                        children: <Widget>[
-                                          DropdownButton<String>(
-                                            iconSize: 28,
-                                            style: TextStyle(
-                                                color: Colors.green[800]),
-                                            items: dropItemsCategory2
-                                                .map((String selectItem) {
-                                              return DropdownMenuItem(
-                                                  value: selectItem,
-                                                  child: Text(selectItem));
-                                            }).toList(),
-                                            isExpanded: false,
-                                            dropdownColor: Colors.grey[200],
-                                            iconDisabledColor:
-                                                Colors.green[800],
-                                            iconEnabledColor: Colors.green[800],
-                                            icon: Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 8, right: 5),
-                                                child: Icon(
-                                                  Icons.menu,
-                                                  size: 27,
-                                                )),
-                                            onChanged: (String theDate) {
-                                              setState(() {
-                                                dropSelectItemCategory2 =
-                                                    theDate;
-                                                category2 =
-                                                    dropSelectItemCategory2;
-                                              });
-                                              print(category);
-                                              print(category2);
-                                            },
-                                            value: dropSelectItemCategory2,
-                                            elevation: 7,
-                                          ),
-                                          Text(
-                                            ': إختر القسم الفرعي ',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontFamily:
-                                                    'Montserrat-Arabic Regular',
-                                                height: 0.5),
-                                          ),
-                                        ],
-                                      )
-                                    : Container(),
-                              ],
-                            ),
-                          )
-                        : Container(),
-                    Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(1),
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Wrap(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(
-                              right: 10, left: 10, bottom: 2, top: 2),
-                          child: SizedBox(
-                            height: 54,
-                            width: 240,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'أدخل إسم لإعلانك';
-                                }
-                                return null;
-                              },
-                              onSaved: (val) {
-                                name = val;
-                              },
-                              onChanged: (val) {
-                                name = val;
-                              },
-                              maxLines: 1,
-                              initialValue: _initialValues['name'].toString(),
-                              maxLength: 32,
-                              //controller: nameController,
-                              textAlign: TextAlign.right,
-                              decoration: InputDecoration(
-                                hintText: '"مثال : "آيفون ٧ للبيع',
-                                hintStyle: TextStyle(fontSize: 12, height: 1),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'ضع إسم للإعلان',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Montserrat-Arabic Regular',
-                              height: 1),
-                        ),
-                      ],
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(1),
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Wrap(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(
-                              right: 10, left: 5, bottom: 2, top: 4),
-                          child: SizedBox(
-                            height: 80,
-                            width: 230,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'أدخل تفاصيل اكثر لإعلانك';
-                                }
-                                return null;
-                              },
-                              initialValue:
-                                  _initialValues['description'].toString(),
-                              onSaved: (val) {
-                                description = val;
-                              },
-                              maxLines: 10,
-                              textAlign: TextAlign.right,
-                              decoration: InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blue),
-                                    borderRadius: BorderRadius.circular(10)),
-                                hintText: 'ضع تفاصيل أكثر لإعلانك ',
-                                fillColor: Colors.grey,
-                                hoverColor: Colors.grey,
-                              ),
-                              cursorRadius: Radius.circular(5),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 12),
-                          child: Text(
-                            'ضع وصف للإعلان',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Montserrat-Arabic Regular',
-                                height: 1.8),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 4),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width - 5,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1),
-                              color: Colors.grey[300],
-                            ),
-                          ),
-                        ),
-                      ],
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                    ),
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      alignment: WrapAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          ': إختر الحالة جديد أم مستعمل ',
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Montserrat-Arabic Regular',
-                              height: 1.8),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          children: <Widget>[
-                            CheckboxListTile(
-                              title: Text(
-                                'جديد',
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    fontFamily: 'Montserrat-Arabic Regular',
-                                    height: 0.5),
-                              ),
-                              controlAffinity: ListTileControlAffinity.trailing,
-                              value: chacked,
-                              onChanged: (value) {
-                                setState(() {
-                                  chacked = value;
-                                  chacked2 = false;
-                                  status = 'جديد';
-                                });
-                              },
-                            ),
-                            CheckboxListTile(
-                              title: Text(
-                                'مستعمل',
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    fontFamily: 'Montserrat-Arabic Regular',
-                                    height: 0.5),
-                              ),
-                              controlAffinity: ListTileControlAffinity.trailing,
-                              value: chacked2,
-                              onChanged: (value) {
-                                setState(() {
-                                  chacked2 = value;
-                                  chacked = false;
-                                  status = 'مستعمل';
-                                });
-                              },
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(1),
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          alignment: WrapAlignment.end,
-                          children: <Widget>[
-                            DropdownButton<String>(
-                              iconSize: 22,
-                              style: TextStyle(color: Colors.green[800]),
-                              items: dropItemsArea.map((String selectItem) {
-                                return DropdownMenuItem(
-                                    value: selectItem, child: Text(selectItem));
-                              }).toList(),
-                              isExpanded: false,
-                              dropdownColor: Colors.grey[200],
-                              iconDisabledColor: Colors.green[800],
-                              iconEnabledColor: Colors.green[800],
-                              icon: Padding(
-                                  padding: EdgeInsets.only(left: 6),
-                                  child: Icon(
-                                    Icons.menu,
-                                    size: 26,
-                                  )),
-                              onChanged: (String theArea) {
-                                setState(() {
-                                  dropSelectItemArea = theArea;
-                                  area2 = theArea;
-                                  showAreaTextField = true;
-                                });
-                              },
-                              value: dropSelectItemArea,
-                              elevation: 7,
-                            ),
-                            Text(
-                              'إختر المحافظة ثم أدخل منطقتك',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Montserrat-Arabic Regular',
-                                  height: 1),
-                            ),
-                            showAreaTextField
-                                ? SizedBox(
-                                    height: 54,
-                                    width: 200,
-                                    child: TextFormField(
-                                      controller: areaController,
-                                      validator: (value) {
-                                        if (value.isEmpty) {
-                                          return 'أدخل منطقتك ...';
-                                        }
-                                        return null;
-                                      },
-                                      onSaved: (val){
-                                        area = '$area2 - $val';
-                                      },
-                                      maxLength: 30,
-                                      textAlign: TextAlign.right,
-                                      decoration: InputDecoration(
-                                        hintText: '... أدخل منطقتك هنا',
-                                        hintStyle:
-                                            TextStyle(fontSize: 12, height: 1),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.blueAccent),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide:
-                                              BorderSide(color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          return null;
+                                        },
+                                        onSaved: (val) {
+                                          name = val;
+                                        },
+                                        onChanged: (val) {
+                                          name = val;
+                                        },
+                                        maxLines: 1,
+                                        initialValue:
+                                            _initialValues['name'].toString(),
+                                        maxLength: 32,
+                                        //controller: nameController,
+                                        textAlign: TextAlign.right,
+                                        decoration: InputDecoration(
+                                          hintText: '"مثال : "آيفون ٧ للبيع',
+                                          hintStyle: TextStyle(
+                                              fontSize: 12, height: 1),
                                         ),
                                       ),
                                     ),
+                                  ),
+                                  Text(
+                                    'ضع إسم للإعلان',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: 'Montserrat-Arabic Regular',
+                                        height: 1),
+                                  ),
+                                ],
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                              ),
+                              lineBorder(),
+                              Wrap(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        right: 10, left: 5, bottom: 2, top: 4),
+                                    child: SizedBox(
+                                      height: 80,
+                                      width: 230,
+                                      child: TextFormField(
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'أدخل تفاصيل اكثر لإعلانك';
+                                          }
+                                          return null;
+                                        },
+                                        initialValue:
+                                            _initialValues['description']
+                                                .toString(),
+                                        onSaved: (val) {
+                                          description = val;
+                                        },
+                                        maxLines: 10,
+                                        textAlign: TextAlign.right,
+                                        decoration: InputDecoration(
+                                          enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          hintText: 'ضع تفاصيل أكثر لإعلانك ',
+                                          fillColor: Colors.grey,
+                                          hoverColor: Colors.grey,
+                                        ),
+                                        cursorRadius: Radius.circular(5),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 12),
+                                    child: Text(
+                                      'ضع وصف للإعلان',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily:
+                                              'Montserrat-Arabic Regular',
+                                          height: 1.8),
+                                    ),
+                                  ),
+                                  lineBorder(),
+                                ],
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.start,
+                              ),
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                alignment: WrapAlignment.end,
+                                children: <Widget>[
+                                  Text(
+                                    ': إختر الحالة جديد أم مستعمل ',
+                                    textAlign: TextAlign.justify,
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: 'Montserrat-Arabic Regular',
+                                        height: 1.8),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Column(
+                                    children: <Widget>[
+                                      CheckboxListTile(
+                                        title: Text(
+                                          'جديد',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily:
+                                                  'Montserrat-Arabic Regular',
+                                              height: 0.5),
+                                        ),
+                                        controlAffinity:
+                                            ListTileControlAffinity.trailing,
+                                        value: chacked,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            chacked = value;
+                                            chacked2 = false;
+                                            status = 'جديد';
+                                          });
+                                        },
+                                      ),
+                                      CheckboxListTile(
+                                        title: Text(
+                                          'مستعمل',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily:
+                                                  'Montserrat-Arabic Regular',
+                                              height: 0.5),
+                                        ),
+                                        controlAffinity:
+                                            ListTileControlAffinity.trailing,
+                                        value: chacked2,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            chacked2 = value;
+                                            chacked = false;
+                                            status = 'مستعمل';
+                                          });
+                                        },
+                                      )
+                                    ],
                                   )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 6),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(1),
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.blueAccent,
-                            ),
-                            height: 30,
-                            width: 1,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top: 5, bottom: 3, left: 3, right: 1),
-                            child: SizedBox(
-                              width: 230,
-                              height: 38,
-                              child: TextFormField(
-                                initialValue:
-                                    _initialValues['price'].toString(),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return ' ضع سعر لإعلانك';
-                                  }
-                                  if (double.tryParse(value) == null) {
-                                    return ' Please provide a valid number';
-                                  }
-                                  if (double.parse(value) <= 0) {
-                                    return ' Please enter a number';
-                                  }
-                                  return null;
-                                },
-                                onSaved: (val) {
-                                  price = double.parse(val);
-                                },
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                textAlign: TextAlign.right,
-                                decoration: InputDecoration(
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.blueAccent),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  hintText:
-                                      '!... أدخل السعر المطلوب ,ارقام انجليزية',
-                                  hintStyle: TextStyle(fontSize: 12, height: 1),
-                                  fillColor: Colors.white,
-                                  hoverColor: Colors.white,
-                                ),
-                                cursorRadius: Radius.circular(10),
+                                ],
                               ),
-                            ),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(right: 2, top: 1),
-                              child: Icon(
-                                Icons.attach_money,
-                                size: 40,
-                                color: Colors.blueAccent,
-                              )),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 1),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(1),
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top: 6, bottom: 3, left: 3, right: 1),
-                            child: SizedBox(
-                              width: 230,
-                              height: 38,
-                              child: TextFormField(
-                                initialValue:
-                                    _initialValues['phone'].toString(),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return '!... أدخل رقم جوالك';
-                                  }
-                                  return null;
-                                },
-                                onSaved: (val) {
-                                  phone = int.parse(val);
-                                },
-                                textAlign: TextAlign.right,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                decoration: InputDecoration(
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.blueAccent),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  hintText:
-                                      '!... أدخل رقم جوالك, ارقام انجليزية',
-                                  hintStyle: TextStyle(fontSize: 12, height: 1),
-                                  fillColor: Colors.white,
-                                  hoverColor: Colors.white,
-                                ),
-                                cursorRadius: Radius.circular(10),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(right: 2, top: 1),
-                              child: Icon(
-                                Icons.phone_iphone,
-                                size: 40,
-                                color: Colors.blueAccent,
-                              )),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 1),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(1),
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 3, bottom: 10),
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 140,
-                            height: 54,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: InkWell(
-                                onTap: () async {
-                                  final isValid =
-                                      _formkey.currentState.validate();
-                                  _formkey.currentState.save();
-                                  FocusScope.of(context).unfocus();
-                                  _editedProduct = Product(
-                                    time: DateFormat('yyyy-MM-dd-HH:mm')
-                                        .format(DateTime.now()),
-                                    creatorName: creatorName,
-                                    id: '',
-                                    name: name,
-                                    creatorId:userId ,
-                                    description: description,
-                                    price: price,
-                                    area: area,
-                                    phone: phone,
-                                    status: status,
-                                    deviceNo: deviceNo,
-                                    category: category,
-                                    uid: userId,
-                                    department: category2,
-                                    imagesUrl: urlImages,
-                                    isFavorite: false,
-                                    isRequest: false,
-                                    views: views,
-                                    likes: likes,
-                                  );
-
-                                  if (urlImages.length > 1) {
-                                    if (widget.isEdit) {
-                                      print(widget.id);
-                                      try {
-                                        print(_editedProduct.area);
-                                        await Provider.of<Products>(context,
-                                                listen: false)
-                                            .updateProduct(
-                                                widget.id, _editedProduct);
-                                        Navigator.of(context).pop();
-                                      } catch (e) {
-                                        await showDialog(
-                                            context: context,
-                                            builder: (ctx) => AlertDialog(
-                                                  title: Text(
-                                                      'An error occurred!'),
-                                                  content:
-                                                      Text('SomeThing Wrong'),
-                                                  actions: [
-                                                    FlatButton(
-                                                      onPressed: () =>
-                                                          Navigator.of(ctx)
-                                                              .pop(),
-                                                      child: Text('Okay!'),
-                                                    )
-                                                  ],
-                                                ));
-                                      }
-                                    } else {
-                                      try {
-                                        await Provider.of<Products>(context,
-                                                listen: false)
-                                            .addProduct(_editedProduct);
-                                         Navigator.of(context).pop();
-                                      } catch (e) {
-                                        await showDialog(
-                                            context: context,
-                                            builder: (ctx) => AlertDialog(
-                                                  title: Text(
-                                                      'An error occurred!'),
-                                                  content:
-                                                      Text('SomeThing Wrong'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.of(ctx)
-                                                              .pop(),
-                                                      child: Text('Okay!'),
-                                                    )
-                                                  ],
-                                                ));
-                                      }
-                                    }
-                                  } else {
-                                    await showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                              title: Text('لا يوجد صورة',style: Theme.of(context).textTheme.headline3,),
-                                              content: Text('اضف صورة رجاءاً',style: Theme.of(context).textTheme.headline3),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(ctx).pop(),
-                                                  child: Text('Okay !',style: Theme.of(context).textTheme.headline3),
-                                                )
-                                              ],
-                                            ));
-                                  }
-                                },
-                                child: Card(
-                                  color: Colors.blue[900],
-                                  child: Center(
-                                    child: Text('انشر إعلانك',
+                              lineBorder(),
+                              Container(
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    alignment: WrapAlignment.end,
+                                    children: <Widget>[
+                                      DropdownButton<String>(
+                                        iconSize: 22,
+                                        style:
+                                            TextStyle(color: Colors.green[800]),
+                                        items: dropItemsArea
+                                            .map((String selectItem) {
+                                          return DropdownMenuItem(
+                                              value: selectItem,
+                                              child: Text(selectItem));
+                                        }).toList(),
+                                        isExpanded: false,
+                                        dropdownColor: Colors.grey[200],
+                                        iconDisabledColor: Colors.green[800],
+                                        iconEnabledColor: Colors.green[800],
+                                        icon: Padding(
+                                            padding: EdgeInsets.only(left: 6),
+                                            child: Icon(
+                                              Icons.menu,
+                                              size: 26,
+                                            )),
+                                        onChanged: (String theArea) {
+                                          setState(() {
+                                            dropSelectItemArea = theArea;
+                                            area2 = theArea;
+                                            showAreaTextField = true;
+                                          });
+                                        },
+                                        value: dropSelectItemArea,
+                                        elevation: 7,
+                                      ),
+                                      Text(
+                                        'إختر المحافظة ثم أدخل منطقتك',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 12,
                                             fontFamily:
                                                 'Montserrat-Arabic Regular',
-                                            height: 1,
-                                            color: Colors.white)),
+                                            height: 1),
+                                      ),
+                                      showAreaTextField
+                                          ? SizedBox(
+                                              height: 54,
+                                              width: 200,
+                                              child: TextFormField(
+                                                controller: areaController,
+                                                validator: (value) {
+                                                  if (value.isEmpty) {
+                                                    return 'أدخل منطقتك ...';
+                                                  }
+                                                  return null;
+                                                },
+                                                onSaved: (val) {
+                                                  area = '$area2 - $val';
+                                                },
+                                                maxLength: 30,
+                                                textAlign: TextAlign.right,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      '... أدخل منطقتك هنا',
+                                                  hintStyle: TextStyle(
+                                                      fontSize: 12, height: 1),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Colors.blueAccent),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color: Colors.green),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ),
+                              lineBorder(),
+                              Container(
+                                child: Wrap(
+                                  alignment: WrapAlignment.end,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.blueAccent,
+                                      ),
+                                      height: 30,
+                                      width: 1,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 5, bottom: 3, left: 3, right: 1),
+                                      child: SizedBox(
+                                        width: 230,
+                                        height: 38,
+                                        child: TextFormField(
+                                          initialValue: _initialValues['price']
+                                              .toString(),
+                                          validator: (value) {
+                                            if (value.isEmpty) {
+                                              return ' ضع سعر لإعلانك';
+                                            }
+                                            if (double.tryParse(value) ==
+                                                null) {
+                                              return ' Please provide a valid number';
+                                            }
+                                            if (double.parse(value) <= 0) {
+                                              return ' Please enter a number';
+                                            }
+                                            return null;
+                                          },
+                                          onSaved: (val) {
+                                            price = double.parse(val);
+                                          },
+                                          keyboardType:
+                                              TextInputType.numberWithOptions(
+                                                  decimal: true),
+                                          textAlign: TextAlign.right,
+                                          decoration: InputDecoration(
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.blueAccent),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.green),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            hintText:
+                                                '!... أدخل السعر المطلوب ,ارقام انجليزية',
+                                            hintStyle: TextStyle(
+                                                fontSize: 12, height: 1),
+                                            fillColor: Colors.white,
+                                            hoverColor: Colors.white,
+                                          ),
+                                          cursorRadius: Radius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            EdgeInsets.only(right: 2, top: 1),
+                                        child: Icon(
+                                          Icons.attach_money,
+                                          size: 40,
+                                          color: Colors.blueAccent,
+                                        )),
+                                  ],
+                                ),
+                              ),
+                              lineBorder(),
+                              Container(
+                                child: Wrap(
+                                  alignment: WrapAlignment.end,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 6, bottom: 3, left: 3, right: 1),
+                                      child: SizedBox(
+                                        width: 230,
+                                        height: 38,
+                                        child: TextFormField(
+                                          initialValue: _initialValues['phone']
+                                              .toString(),
+                                          validator: (value) {
+                                            if (value.isEmpty) {
+                                              return '!... أدخل رقم جوالك';
+                                            }
+                                            return null;
+                                          },
+                                          onSaved: (val) {
+                                            phone = int.parse(val);
+                                          },
+                                          textAlign: TextAlign.right,
+                                          keyboardType:
+                                              TextInputType.numberWithOptions(
+                                                  decimal: true),
+                                          decoration: InputDecoration(
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.blueAccent),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.green),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            hintText:
+                                                '!... أدخل رقم جوالك, ارقام انجليزية',
+                                            hintStyle: TextStyle(
+                                                fontSize: 12, height: 1),
+                                            fillColor: Colors.white,
+                                            hoverColor: Colors.white,
+                                          ),
+                                          cursorRadius: Radius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            EdgeInsets.only(right: 2, top: 1),
+                                        child: Icon(
+                                          Icons.phone_iphone,
+                                          size: 40,
+                                          color: Colors.blueAccent,
+                                        )),
+                                  ],
+                                ),
+                              ),
+                              lineBorder(),
+                              Padding(
+                                padding: EdgeInsets.only(top: 3, bottom: 10),
+                                child: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  children: <Widget>[
+                                    SizedBox(
+                                      width: 140,
+                                      height: 54,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(30),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            final isValid = _formkey
+                                                .currentState
+                                                .validate();
+                                            _formkey.currentState.save();
+                                            FocusScope.of(context).unfocus();
+                                            _editedProduct = Product(
+                                              time:
+                                                  DateFormat('yyyy-MM-dd-HH:mm')
+                                                      .format(DateTime.now()),
+                                              creatorName: creatorName,
+                                              id: '',
+                                              name: name,
+                                              creatorId: userId,
+                                              description: description,
+                                              price: price,
+                                              area: area,
+                                              phone: phone,
+                                              status: status,
+                                              deviceNo: deviceNo,
+                                              category: category,
+                                              uid: userId,
+                                              department: category2,
+                                              imagesUrl: urlImages,
+                                              isFavorite: false,
+                                              isRequest: false,
+                                              views: views,
+                                              likes: likes,
+                                            );
+
+                                            if (urlImages.length > 1) {
+                                              if (widget.isEdit) {
+                                                print(widget.id);
+                                                try {
+                                                  print(_editedProduct.area);
+                                                  await Provider.of<Products>(
+                                                          context,
+                                                          listen: false)
+                                                      .updateProduct(widget.id,
+                                                          _editedProduct);
+                                                  Navigator.of(context).pop();
+                                                } catch (e) {
+                                                  await showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (ctx) => AlertDialog(
+                                                                title: Text(
+                                                                    'An error occurred!'),
+                                                                content: Text(
+                                                                    'SomeThing Wrong'),
+                                                                actions: [
+                                                                  FlatButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.of(ctx)
+                                                                            .pop(),
+                                                                    child: Text(
+                                                                        'Okay!'),
+                                                                  )
+                                                                ],
+                                                              ));
+                                                }
+                                              } else {
+                                                try {
+                                                  await Provider.of<Products>(
+                                                          context,
+                                                          listen: false)
+                                                      .addProduct(
+                                                          _editedProduct);
+                                                  Navigator.of(context).pop();
+                                                } catch (e) {
+                                                  await showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (ctx) => AlertDialog(
+                                                                title: Text(
+                                                                    'An error occurred!'),
+                                                                content: Text(
+                                                                    'SomeThing Wrong'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.of(ctx)
+                                                                            .pop(),
+                                                                    child: Text(
+                                                                        'Okay!'),
+                                                                  )
+                                                                ],
+                                                              ));
+                                                }
+                                              }
+                                            } else {
+                                              await showDialog(
+                                                  context: context,
+                                                  builder: (ctx) => AlertDialog(
+                                                        title: Text(
+                                                          'لا يوجد صورة',
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .headline3,
+                                                        ),
+                                                        content: Text(
+                                                            'اضف صورة رجاءاً',
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .headline3),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                        ctx)
+                                                                    .pop(),
+                                                            child: Text(
+                                                                'Okay !',
+                                                                style: Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .headline3),
+                                                          )
+                                                        ],
+                                                      ));
+                                            }
+                                          },
+                                          child: Card(
+                                            color: Colors.blue[900],
+                                            child: Center(
+                                              child: Text('انشر إعلانك',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontFamily:
+                                                          'Montserrat-Arabic Regular',
+                                                      height: 1,
+                                                      color: Colors.white)),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
                           )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 80,
-                    )
+                        : Container(),
+                    lineBorder(),
                   ],
                 ),
               ),
@@ -1495,4 +1274,158 @@ class _AddNewAdState extends State<AddNewAd> {
         fontSize: 17,
         textColor: Colors.white);
   }
+
+  Widget lineBorder() {
+    return Padding(
+      padding: EdgeInsets.only(top: 2),
+      child: Container(
+        width: MediaQuery.of(context).size.width - 5,
+        height: 4,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(1),
+          color: Colors.grey[300],
+        ),
+      ),
+    );
+  }
+
+  List<ChipData> chips = Chips.all;
+  final double spacing = 8;
+  List<ActionChipData> devicesAndElectronicsList =
+      DevicesAndElectronicsList.all;
+  List<ActionChipData> mobileList = MobileList.all;
+  List<ActionChipData> homeList = HomeList.all;
+  List<ActionChipData> clothesList = ClothesList.all;
+  List<ActionChipData> farmingList = FarmingList.all;
+  List<ActionChipData> livestocksList = LivestocksList.all;
+  List<ActionChipData> foodList = FoodList.all;
+  List<ActionChipData> occupationsAndServicesList = OccupationsAndServicesList.all;
+  List<ActionChipData> gamesList = GamesList.all;
+
+  List<ActionChipData> carsList = CarsList.all;
+  List<ActionChipData> actionChips3;
+  List<FilterChipData> filterChips = FilterChips.all;
+  bool choseFirstChip = false;
+
+//filter chip
+  Widget buildFilterChips() => Wrap(
+        alignment: WrapAlignment.spaceEvenly,
+        runSpacing: spacing,
+        crossAxisAlignment: WrapCrossAlignment.end,
+        spacing: spacing,
+        children: filterChips
+            .map((filterChip) => FilterChip(
+                  label: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 1, horizontal: 2),
+                    child: Text(
+                      filterChip.label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Montserrat-Arabic Regular'),
+                    ),
+                  ),
+                  labelStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: filterChip.color,
+                  ),
+                  backgroundColor: filterChip.color.withOpacity(0.1),
+                  onSelected: (isSelected) {
+                    setState(() {
+                      filterChips = filterChips.map((otherChip) {
+                        return filterChip == otherChip
+                            ? otherChip.copy(isSelected: isSelected)
+                            : otherChip.copy(isSelected: false);
+                      }).toList();
+                      switch (filterChip.label) {
+                        case 'الموبايل':
+                          actionChips3 = mobileList;
+                          choseFirstChip = true;
+                          break;
+
+                        case 'أجهزة - إلكترونيات':
+                          actionChips3 = devicesAndElectronicsList;
+                          choseFirstChip = true;
+                          break;
+                        case 'السيارات - الدراجات':
+                          actionChips3 = carsList;
+                          choseFirstChip = true;
+                          break;
+                        case 'المنزل':
+                          actionChips3 = homeList;
+                          choseFirstChip = true;
+                          break;
+                      case 'ألبسة':
+                      actionChips3 = clothesList;
+                      choseFirstChip = true;
+                      break;
+                        case 'الزراعة':
+                          actionChips3 = farmingList;
+                          choseFirstChip = true;
+                          break;
+                        case 'المواشي':
+                          actionChips3 = livestocksList;
+                          choseFirstChip = true;
+                          break;
+                        case 'أطعمة':
+                          actionChips3 = foodList;
+                          choseFirstChip = true;
+                          break;
+                        case 'مهن وخدمات':
+                          actionChips3 = occupationsAndServicesList;
+                          choseFirstChip = true;
+                          break;
+                        case 'ألعاب':
+                          actionChips3 = gamesList;
+                          choseFirstChip = true;
+                          break;
+                        case 'المعدات والشاحنات':
+                          choseFirstChip = false;
+                          break;
+                        case 'وظائف وأعمال':
+                          choseFirstChip = false;
+                          break;
+                      }
+                      Utils.showSnackBar(
+                        context,
+                        'Do action "${filterChip.label}"...',
+                      );
+                    });
+                  },
+                  selected: filterChip.isSelected,
+                  checkmarkColor: filterChip.color,
+                  selectedColor: filterChip.color.withOpacity(0.25),
+                ))
+            .toList(),
+      );
+
+//action chips
+  Widget buildActionChips() => Wrap(
+        crossAxisAlignment: WrapCrossAlignment.end,
+        alignment: WrapAlignment.spaceEvenly,
+        runSpacing: spacing,
+        spacing: spacing,
+        children: actionChips3
+            .map((actionChip) => ActionChip(
+                  avatar: Icon(
+                    actionChip.icon,
+                    color: actionChip.iconColor,
+                  ),
+                  backgroundColor: Colors.grey[200],
+                  label: Text(
+                    actionChip.label,
+                    textAlign: TextAlign.center,
+                  ),
+                  labelStyle: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontFamily: 'Montserrat-Arabic Regular'),
+                  onPressed: () => Utils.showSnackBar(
+                    context,
+                    'Do action "${actionChip.label}"...',
+                  ),
+                ))
+            .toList(),
+      );
 }

@@ -1,7 +1,7 @@
 // @dart=2.9
 
+import 'package:alsouqf/service/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -9,8 +9,6 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import '../providers/ads_provider.dart';
 import '../providers/auth.dart';
-import '../providers/full_provider.dart';
-import '../screens/requests.dart';
 import '../widgets/bottomNavBar.dart';
 import '../widgets/head.dart';
 import '../widgets/new_Ads.dart';
@@ -153,7 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, Requests.routeName);
+                        LocationService _location = LocationService();
+                        _location.sendLocationToDataBase(context);
+                       //Navigator.pushNamed(context, Requests.routeName);
                       },
                       child: Container(
                         child: Row(

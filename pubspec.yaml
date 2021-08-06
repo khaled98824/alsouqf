@@ -55,6 +55,9 @@ dependencies:
   sign_in_with_apple: ^3.0.0
   sign_in_apple:
   flutter_signin_button:
+  geocoder: ^0.2.1
+  location: ^3.0.0
+
 
 
 dev_dependencies:
