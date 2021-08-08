@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
                       color: Colors.black),
                   headline4: TextStyle(
                       fontFamily: 'Montserrat-Arabic Regular',
-                      fontSize: 16,
+                      fontSize: 15,
                       wordSpacing: 1,
                       letterSpacing: 1,
                       height: 1.4,

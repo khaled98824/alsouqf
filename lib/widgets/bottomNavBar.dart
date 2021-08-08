@@ -24,13 +24,13 @@ class _bottomNavBState extends State<BottomNavB> {
     if (_currentIndex == 4) {
       Navigator.popAndPushNamed(context, HomeScreen.routeName);
     } else if (_currentIndex == 3) {
-      Navigator.pushNamed(context, MyChats.routeName);
+      Navigator.popAndPushNamed(context, MyChats.routeName);
     } else if (_currentIndex == 2) {
       Navigator.of(context).pop();
       Navigator.push(context,
           MaterialPageRoute(builder: (ctx) => AddNewAd(ctx, null,false)));
     } else if (_currentIndex == 1) {
-      Navigator.pushNamed(context, MyAds.routeName);
+      Navigator.popAndPushNamed(context, MyAds.routeName);
     } else if (_currentIndex == 0) {
       Navigator.popAndPushNamed(context, Profile.routeName);
     }

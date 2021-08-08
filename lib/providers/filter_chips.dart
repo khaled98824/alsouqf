@@ -32,37 +32,37 @@ class FilterChips {
     FilterChipData(
       label: Category[5],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.deepPurple,
     ),
     FilterChipData(
       label: Category[6],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.deepPurpleAccent,
     ),
     FilterChipData(
       label: Category[7],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.brown,
     ),
     FilterChipData(
       label: Category[8],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.amber.shade900,
     ),
     FilterChipData(
       label: Category[9],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.redAccent,
     ),
     FilterChipData(
       label: Category[10],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.blue.shade800,
     ),
     FilterChipData(
       label: Category[11],
       isSelected: false,
-      color: Colors.purple,
+      color: Colors.brown,
     ),
 
   ];

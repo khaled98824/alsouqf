@@ -39,7 +39,6 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     uid = Provider.of<Auth>(context,listen: false).userId;
-    final userGetData = Provider.of<Auth>(context, listen: false);
     return Material(
       child: SafeArea(
         child: Scaffold(
@@ -181,8 +180,8 @@ class _ProfileState extends State<Profile> {
                                    height: 1,
                                    color: Colors.grey,
                                  ),
-                                 info(Icons.chat_outlined, 'دردشاتي', (){ Navigator.pushNamed(context, MyChats.routeName);}, Colors.blueAccent),
-                                 info(Icons.auto_awesome_motion, 'إعلاناتي', (){Navigator.pushNamed(context, MyAds.routeName);}, Colors.blueAccent),
+                                 info(Icons.chat_outlined, 'دردشاتي', (){ Navigator.popAndPushNamed(context, MyChats.routeName);}, Colors.blueAccent),
+                                 info(Icons.auto_awesome_motion, 'إعلاناتي', (){Navigator.popAndPushNamed(context, MyAds.routeName);}, Colors.blueAccent),
                                  info(Icons.markunread_mailbox, 'الشكاوى والإقتراحات', (){Navigator.pushNamed(context, ComplaintsAndSuggestions.routeName);},Colors.yellow),
                                  info(Icons.security, 'سياسة الخصوصية وشروط الاستخدام', (){chosePage(context);},Colors.red),
                                  //info(Icons.verified_user, 'آدمن', (){},Colors.yellow),

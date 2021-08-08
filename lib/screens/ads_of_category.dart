@@ -23,7 +23,7 @@ class _AdsOfCategoryState extends State<AdsOfCategory> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder(
-          future: Provider.of<Products>(context,listen: false).fetchCategoryAds(widget.categoryName),
+          future: widget.categoryName!=""? Provider.of<Products>(context,listen: false).fetchCategoryAds(widget.categoryName):Provider.of<Products>(context,listen: false).fetchLastAds(''),
           builder: (context,data){
             if(data.connectionState ==ConnectionState.waiting){
               return  Center(child: CircularProgressIndicator());
@@ -44,7 +44,8 @@ class _AdsOfCategoryState extends State<AdsOfCategory> {
                               'https://firebasestorage.googleapis.com/v0/b/souq-alfurat-89023.appspot.com/o/WhatsApp%20Image%202020-09-15%20at%2011.23.35%20AM.jpeg?alt=media&token=a7c3f2d7-2629-4519-9c61-93444f989688',
                               fit: BoxFit.cover,
                             ),
-                            title: Text(widget.categoryName,style: Theme.of(context).textTheme.headline4,),
+                            title: Text(widget.categoryName!=""?widget.categoryName:'آخر الإعلانات',
+                              style: Theme.of(context).textTheme.headline4,),
                             centerTitle: true,
                           ),
                           //title: Text('My App Bar'),

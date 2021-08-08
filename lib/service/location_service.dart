@@ -4,6 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:location/location.dart';
 
 class LocationService {
+  late String countryName;
+  late String adminArea;
+
   Firestore _service = Firestore();
 
   sendLocationToDataBase(context) async {
@@ -30,6 +33,8 @@ class LocationService {
     _locationData = await location.getLocation();
     final coordinates= Coordinates(_locationData.latitude, _locationData.longitude);
     var address = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    countryName =address.first.countryName;
+    adminArea = address.first.adminArea;
     print('feature${address.first.featureName}');
     print(address.first.countryName);
     print(address.first.addressLine);

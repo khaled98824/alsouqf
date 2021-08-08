@@ -8,6 +8,7 @@ import '../providers/auth.dart';
 import '../providers/chats_provider.dart';
 
 import 'chatScreen.dart';
+import 'home.dart';
 
 class MyChats extends StatefulWidget {
   static const routeName = "/my_chats";
@@ -20,13 +21,15 @@ class _MyChatsState extends State<MyChats> {
   @override
   Widget build(BuildContext context) {
     final userId = Provider.of<Auth>(context, listen: false).userId;
-    final chats = Provider.of<ChatsProvider>(context, listen: false)
-        .fetchMyChats('', userId);
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('دردشاتي'),
+        actions: [
+          IconButton(onPressed:(){
+            Navigator.popAndPushNamed(context, HomeScreen.routeName);
+          }, icon: Icon(FontAwesomeIcons.arrowRight))
+        ],
       ),
       body: FutureBuilder(
           future: Provider.of<ChatsProvider>(context, listen: false)

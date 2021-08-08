@@ -50,7 +50,7 @@ class NewAds extends StatelessWidget {
 Widget buildAds(ctx) => SliverToBoxAdapter(
       child: GridView.builder(
         scrollDirection: Axis.vertical,
-        itemCount: 2,
+        itemCount: 5,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisExtent: 260,

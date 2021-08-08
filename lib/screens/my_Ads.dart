@@ -7,6 +7,7 @@ import '../providers/ads_provider.dart';
 import '../providers/auth.dart';
 import '../screens/add_new_ad.dart';
 import '../screens/show_ad.dart';
+import 'home.dart';
 
 class MyAds extends StatefulWidget {
   static const routeName = "/my_ads";
@@ -18,12 +19,16 @@ class MyAds extends StatefulWidget {
 class _MyAdsState extends State<MyAds> {
   @override
   Widget build(BuildContext context) {
-    final userId = Provider.of<Auth>(context, listen: false).userId;
-    final myAds = Provider.of<Products>(context, listen: false).myAds;
+    final userId = Provider.of<Auth>(context, listen:true).userId;
     return Scaffold(
       appBar: AppBar(
         title: Text('إعلاناتي'),
         centerTitle: true,
+        actions: [
+          IconButton(onPressed:(){
+            Navigator.popAndPushNamed(context, HomeScreen.routeName);
+          }, icon: Icon(FontAwesomeIcons.arrowRight))
+        ],
       ),
       body: FutureBuilder(
           future:

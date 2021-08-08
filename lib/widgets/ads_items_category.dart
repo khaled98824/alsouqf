@@ -110,15 +110,21 @@ class CategoryAdsItemsCard extends StatelessWidget {
                               const EdgeInsets.symmetric(vertical: 8.0),
                               child: Text("$title".toUpperCase(),
                                   textAlign: TextAlign.right,
+                                  overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.headline3),
                             ),
-                            Text(
-                              "$country".toUpperCase(),
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                  fontFamily: 'Montserrat-Arabic Regular',
-                                  color: kPrimaryColor.withOpacity(0.5),
-                                  fontSize: 12),
+                            SizedBox(
+                              width: 144,
+                              child: Text(
+                                "$country".toUpperCase(),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontFamily: 'Montserrat-Arabic Regular',
+                                    color: kPrimaryColor.withOpacity(0.5),
+                                    fontSize: 12),
+                              ),
                             ),
                             Text(
                               "$date".toUpperCase(),

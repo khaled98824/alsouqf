@@ -9,6 +9,7 @@ import '../models/ads_model.dart';
 
 class Products with ChangeNotifier {
   List<Product> _items = [];
+
   List<DocumentSnapshot> newItems = [];
   List<DocumentSnapshot> myAds = [];
   List<DocumentSnapshot> requests = [];
@@ -327,11 +328,29 @@ class Products with ChangeNotifier {
     }
   }
 
+  // fetch Ads Of Category
   Future<void> fetchCategoryAds(category) async {
     try {
       QuerySnapshot querySnapshot = await Firestore.instance
           .collection("Ads2")
           .where('category', isEqualTo: category)
+          .getDocuments();
+      final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
+      itemsCategory = snap;
+      print(itemsCategory.length);
+      itemsCategoryCount = itemsCategory.length;
+      newItems = snap;
+      notifyListeners();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // fetch Last Ads
+  Future<void> fetchLastAds(category) async {
+    try {
+      QuerySnapshot querySnapshot = await Firestore.instance
+          .collection("Ads2")
           .getDocuments();
       final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
       itemsCategory = snap;

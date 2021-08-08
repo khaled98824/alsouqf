@@ -201,7 +201,7 @@ class _ShowAdState extends State<ShowAd> {
                                                   horizontal: 10),
                                               child: Image.network(
                                                 ads['imagesUrl'][imageUrl4Show],
-                                                fit: BoxFit.cover,
+                                                fit: BoxFit.fill,
                                               ),
                                             ),
                                           )),
@@ -221,7 +221,8 @@ class _ShowAdState extends State<ShowAd> {
                                 disableCenter: false,
                                 height: 250,
                               ),
-                            )),
+                            ),
+                    ),
                     SizedBox(
                       height: 14,
                     ),
@@ -246,6 +247,7 @@ class _ShowAdState extends State<ShowAd> {
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
                                   Text('علق',
                                       textAlign: TextAlign.center,
@@ -518,13 +520,18 @@ class _ShowAdState extends State<ShowAd> {
                 Spacer(),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4, top: 4),
-                  child: Text(
-                    value.toString(),
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .headline3,
-                    textAlign: TextAlign.center,
+                  child: SizedBox(
+                    width: 200,
+                    child: Text(
+                      value.toString(),
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .headline3,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
                 Spacer(),
@@ -532,6 +539,7 @@ class _ShowAdState extends State<ShowAd> {
                   padding: const EdgeInsets.only(bottom: 4, top: 4),
                   child: Text(
                     title,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme
                         .of(context)
                         .textTheme

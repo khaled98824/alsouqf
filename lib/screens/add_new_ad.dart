@@ -2,10 +2,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:alsouqf/models/action_chip_data.dart';
-import 'package:alsouqf/models/chip_data.dart';
 import 'package:alsouqf/models/filter_chip_data.dart';
 import 'package:alsouqf/providers/action_chips.dart';
-import 'package:alsouqf/providers/chips.dart';
 import 'package:alsouqf/providers/filter_chips.dart';
 import 'package:alsouqf/service/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -92,114 +90,22 @@ class _AddNewAdState extends State<AddNewAd> {
 
   bool choseCategory = false;
   bool choseCategory2 = true;
+  bool showInfoSelected =false;
   bool statusShow = true;
   bool showAreaTextField = false;
-  var dropItemsGames = [
-    'إختر القسم الفرعي',
-    'ألعاب موبايل',
-    'ألعاب كمبيوتر',
-    "ألعاب وتسالي الأطفال",
-    "أخرى"
-  ];
-  var dropItemsOccupationsAndServices = [
-    'إختر القسم الفرعي',
-    'البناء',
-    'صيانة المنزل',
-    "خدمات التنظيف",
-    "خدمات مناسبات",
-    "خدمات توصيل",
-    "أخرى"
-  ];
-  var dropItemsFood = [
-    'إختر القسم الفرعي',
-    'أجبان ألبان - مونة',
-    'حلويات',
-    "أطعمة شعبية",
-    "أخرى"
-  ];
-  var dropItemsLivestocks = [
-    'إختر القسم الفرعي',
-    'أغنام',
-    'أبقار',
-    "طيور",
-    "أعلاف"
-  ];
-  var dropItemsFarming = [
-    'إختر القسم الفرعي',
-    'معدات زراعية',
-    'مواد زراعية وبذور',
-    "ورش الأعمال الزراعية",
-    "مشاتل - أغراس"
-  ];
-  var dropItemsClothes = [
-    'إختر القسم الفرعي',
-    'ألبسة رجالية',
-    'ألبسة نسائية',
-    "ألبسة ولادي-بناتي",
-    "ألبسة أطفال",
-    "أقمشة"
-  ];
-  var dropItemsHome = [
-    'إختر القسم الفرعي',
-    'أجهزة كهربائية',
-    'أثاث',
-    "منسوجات - سجاد",
-    "أدوات المطبخ",
-    "أبواب - شبابيك - ألمنيوم",
-    "أخرى"
-  ];
-  var dropItemsDevicesAndElectronics = [
-    'إختر القسم الفرعي',
-    'لابتوب - كمبيوتر',
-    'تلفزيون شاشات',
-    "كاميرات - تصوير",
-    "طابعات",
-    "راوترات - أجهزة إنترنت",
-    "أخرى"
-  ];
-  var dropItemsCars = [
-    'إختر القسم الفرعي',
-    'سيارات للبيع',
-    'سيارات للإيجار',
-    "قطع غيار",
-    "دراجات نارية للبيع"
-  ];
-  var dropItemsMobile = [
-    'إختر القسم الفرعي',
-    'أبل',
-    'هواوي',
-    'سامسونج',
-    'صيانة الموبايل',
-    'إكسسوارات'
-  ];
-  var dropItemsCategory2 = [
-    'إختر القسم الفرعي',
-  ];
-  var dropSelectItemCategory2 = 'إختر القسم الفرعي';
+  bool valueSelectGps= false;
+  bool allZonesShow =true;
+  bool currentZoneShow= false;
+
   String category2 = '';
 
-  var dropItemsCategory = [
-    'إختر القسم الرئيسي',
-    'السيارات - الدراجات',
-    'الموبايل',
-    'أجهزة - إلكترونيات',
-    'وظائف وأعمال',
-    'مهن وخدمات',
-    'المنزل',
-    'المعدات والشاحنات',
-    'المواشي',
-    'الزراعة',
-    'ألعاب',
-    'ألبسة',
-    'أطعمة'
-  ];
-  var dropSelectItemCategory = 'إختر القسم الرئيسي';
+
   String category = '';
   List<String> dropItemsArea = [
-    'إختر المحافظة',
+
   ];
 
-  var dropSelectItemArea = 'إختر المحافظة';
+  var dropSelectItemArea ;
   String area = '';
   String area2 = '';
   String description;
@@ -405,6 +311,15 @@ class _AddNewAdState extends State<AddNewAd> {
     };
   }
 
+  getCurrentAddress()async{
+    LocationService _location = LocationService();
+    await _location.sendLocationToDataBase(context);
+    area ='${_location.countryName} -${_location.adminArea}';
+    setState(() {
+      currentZoneShow = true;
+    });
+    print('area == $area');
+  }
   Widget build(BuildContext context) {
     final userGetData =
         Provider.of<Auth>(context, listen: false).gitCurrentUserInfo();
@@ -649,32 +564,42 @@ class _AddNewAdState extends State<AddNewAd> {
                           choseCategory = !choseCategory;
                         });
                       },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Icon(
-                            Icons.arrow_back_ios,
-                            size: 26,
-                            color: Colors.grey[600],
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Icon(
+                                Icons.arrow_back_ios,
+                                size: 26,
+                                color: Colors.grey[600],
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 3),
+                                  child: Text(
+                                    'ما الذي تريد بيعه أو الإعلان عنه ؟',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: 'Montserrat-Arabic Regular',
+                                        height: 1.5),
+                                  )),
+                            ],
                           ),
-                          Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 3),
-                              child: Text(
-                                'ما الذي تريد بيعه أو الإعلان عنه ؟',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: 'Montserrat-Arabic Regular',
-                                    height: 1.5),
-                              )),
+                         showInfoSelected? infoSelected():Container()
                         ],
                       ),
                     ),
-                    buildFilterChips(),
                     lineBorder(),
-                    choseFirstChip ? buildActionChips() : Container(),
-                    choseCategory
+                    choseCategory? Column(
+                      children: [
+                        buildFilterChips(),
+                        lineBorder(),
+                        choseFirstChip ? buildActionChips() : Container(),
+                      ],
+                    ):Container(),
+                    !choseCategory
                         ? Column(
                             children: [
                               Wrap(
@@ -843,100 +768,102 @@ class _AddNewAdState extends State<AddNewAd> {
                                 ],
                               ),
                               lineBorder(),
-                              Container(
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 1,horizontal: 10.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Transform.scale(
+                                      scale:1.1,
+                                      child: Switch.adaptive(value: valueSelectGps, onChanged: (val){
+                                        setState(() {
+                                          allZonesShow = !allZonesShow;
+                                          this.valueSelectGps =val;
+                                          if(val){
+                                            print(val);
+                                            allZonesShow=false;
+                                            getCurrentAddress();
+                                          }else{
+                                            area='';
+                                            area2='';
+                                            print(val);
+                                          }
+                                        });
+                                      })
+                                    ),
+                                    Text(
+                                      'تحديد الموقع الحالي ',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily:
+                                          'Montserrat-Arabic Regular',
+                                          height: 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              lineBorder(),
+                              currentZoneShow ? Container(
+                                color: Colors.grey.shade300,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Spacer(),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 4, top: 4),
+                                      child: Text(
+                                        '  $area',
+                                        style: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .headline3,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 4, top: 4),
+                                      child: Text(
+                                        ': المنطقة ',
+                                        style: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .headline3,
+                                        textAlign: TextAlign.end,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    )
+                                  ],
+                                ),
+                              ):Container(),
+                             allZonesShow ? Container(
                                 child: Padding(
-                                  padding: EdgeInsets.only(right: 10),
+                                  padding: EdgeInsets.only(right: 10,top:5 ),
                                   child: Wrap(
                                     crossAxisAlignment:
                                         WrapCrossAlignment.center,
                                     alignment: WrapAlignment.end,
                                     children: <Widget>[
-                                      DropdownButton<String>(
-                                        iconSize: 22,
-                                        style:
-                                            TextStyle(color: Colors.green[800]),
-                                        items: dropItemsArea
-                                            .map((String selectItem) {
-                                          return DropdownMenuItem(
-                                              value: selectItem,
-                                              child: Text(selectItem));
-                                        }).toList(),
-                                        isExpanded: false,
-                                        dropdownColor: Colors.grey[200],
-                                        iconDisabledColor: Colors.green[800],
-                                        iconEnabledColor: Colors.green[800],
-                                        icon: Padding(
-                                            padding: EdgeInsets.only(left: 6),
-                                            child: Icon(
-                                              Icons.menu,
-                                              size: 26,
-                                            )),
-                                        onChanged: (String theArea) {
-                                          setState(() {
-                                            dropSelectItemArea = theArea;
-                                            area2 = theArea;
-                                            showAreaTextField = true;
-                                          });
-                                        },
-                                        value: dropSelectItemArea,
-                                        elevation: 7,
-                                      ),
+
                                       Text(
-                                        'إختر المحافظة ثم أدخل منطقتك',
+                                        ' : إختر المنطقة ',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 13,
                                             fontFamily:
                                                 'Montserrat-Arabic Regular',
                                             height: 1),
                                       ),
-                                      showAreaTextField
-                                          ? SizedBox(
-                                              height: 54,
-                                              width: 200,
-                                              child: TextFormField(
-                                                controller: areaController,
-                                                validator: (value) {
-                                                  if (value.isEmpty) {
-                                                    return 'أدخل منطقتك ...';
-                                                  }
-                                                  return null;
-                                                },
-                                                onSaved: (val) {
-                                                  area = '$area2 - $val';
-                                                },
-                                                maxLength: 30,
-                                                textAlign: TextAlign.right,
-                                                decoration: InputDecoration(
-                                                  hintText:
-                                                      '... أدخل منطقتك هنا',
-                                                  hintStyle: TextStyle(
-                                                      fontSize: 12, height: 1),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color:
-                                                            Colors.blueAccent),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Colors.green),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                          : Container(),
+                                      buildActionChipsArea(),
                                     ],
                                   ),
                                 ),
-                              ),
+                              ):Container(),
                               lineBorder(),
                               Container(
                                 child: Wrap(
@@ -1130,7 +1057,7 @@ class _AddNewAdState extends State<AddNewAd> {
                                                           listen: false)
                                                       .updateProduct(widget.id,
                                                           _editedProduct);
-                                                  Navigator.of(context).pop();
+                                                  Navigator.popAndPushNamed(context, HomeScreen.routeName);
                                                 } catch (e) {
                                                   await showDialog(
                                                       context: context,
@@ -1158,7 +1085,8 @@ class _AddNewAdState extends State<AddNewAd> {
                                                           listen: false)
                                                       .addProduct(
                                                           _editedProduct);
-                                                  Navigator.of(context).pop();
+                                                  Navigator.popAndPushNamed(context, HomeScreen.routeName);
+                                                  Utils.showSnackBar(context, 'تم حفظ إعلانك');
                                                 } catch (e) {
                                                   await showDialog(
                                                       context: context,
@@ -1289,7 +1217,6 @@ class _AddNewAdState extends State<AddNewAd> {
     );
   }
 
-  List<ChipData> chips = Chips.all;
   final double spacing = 8;
   List<ActionChipData> devicesAndElectronicsList =
       DevicesAndElectronicsList.all;
@@ -1332,6 +1259,7 @@ class _AddNewAdState extends State<AddNewAd> {
                   backgroundColor: filterChip.color.withOpacity(0.1),
                   onSelected: (isSelected) {
                     setState(() {
+                      category2 ='';
                       filterChips = filterChips.map((otherChip) {
                         return filterChip == otherChip
                             ? otherChip.copy(isSelected: isSelected)
@@ -1386,10 +1314,8 @@ class _AddNewAdState extends State<AddNewAd> {
                           choseFirstChip = false;
                           break;
                       }
-                      Utils.showSnackBar(
-                        context,
-                        'Do action "${filterChip.label}"...',
-                      );
+                      showInfoSelected =true;
+                      category = filterChip.label;
                     });
                   },
                   selected: filterChip.isSelected,
@@ -1399,7 +1325,7 @@ class _AddNewAdState extends State<AddNewAd> {
             .toList(),
       );
 
-//action chips
+//action chips category
   Widget buildActionChips() => Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         alignment: WrapAlignment.spaceEvenly,
@@ -1412,20 +1338,154 @@ class _AddNewAdState extends State<AddNewAd> {
                     color: actionChip.iconColor,
                   ),
                   backgroundColor: Colors.grey[200],
-                  label: Text(
-                    actionChip.label,
-                    textAlign: TextAlign.center,
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 1.0,horizontal: 4.0),
+                    child: Text(
+                      actionChip.label,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   labelStyle: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                       fontSize: 12,
                       fontFamily: 'Montserrat-Arabic Regular'),
-                  onPressed: () => Utils.showSnackBar(
-                    context,
-                    'Do action "${actionChip.label}"...',
-                  ),
+                  onPressed: () {
+                    setState(() {
+                      choseCategory = false;
+                    });
+                    category2 = actionChip.label;
+                    // Utils.showSnackBar(
+                    //   context,
+                    //   'Do action "${actionChip.label}"...',
+                    // );
+                  }
                 ))
             .toList(),
       );
+
+  //action chips category
+  Widget buildActionChipsArea() => Wrap(
+    crossAxisAlignment: WrapCrossAlignment.end,
+    alignment: WrapAlignment.spaceEvenly,
+    runSpacing: spacing,
+    spacing: spacing,
+    children: dropItemsArea
+        .map((actionChip) => ActionChip(
+        avatar: Icon(
+          Icons.location_city,
+          color: Colors.amber,
+        ),
+        backgroundColor: Colors.grey[200],
+        label: Text(
+          actionChip,
+          textAlign: TextAlign.center,
+        ),
+        labelStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 12,
+            fontFamily: 'Montserrat-Arabic Regular'),
+        onPressed: () {
+          setState(() {
+            area =actionChip;
+            currentZoneShow =true;
+            allZonesShow =false;
+          });
+
+          // Utils.showSnackBar(
+          //   context,
+          //   'Do action "${actionChip.label}"...',
+          // );
+        }
+    ))
+        .toList(),
+  );
+
+  Widget infoSelected(){
+    return Column(
+      children: [
+        Container(
+          color: Colors.grey.shade300,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4, top: 4),
+                child: Text(
+                  '  $category',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline3,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4, top: 4),
+                child: Text(
+                  ': القسم الرئيسي  ',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline3,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              SizedBox(
+                width: 8,
+              )
+            ],
+          ),
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width - 5,
+          height: 2,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(1),
+            color: Colors.grey[100],
+          ),
+        ),
+        Container(
+          color: Colors.grey.shade300,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4, top: 4),
+                child: Text(
+                  '  $category2',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline3,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4, top: 4),
+                child: Text(
+                  ': القسم الفرعي  ',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline3,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              SizedBox(
+                width: 8,
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
