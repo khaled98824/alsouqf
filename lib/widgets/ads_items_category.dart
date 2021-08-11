@@ -157,6 +157,8 @@ class CategoryAdsItemsCard extends StatelessWidget {
                       InkWell(
                         onTap: () async {
                           if (likesList.length > 1) {
+                            print(likesList);
+                            print('id   $id');
                             for (int i = 0; i < likesList.length; i++) {
                               if (likesList[i] == id) {
                                 isLike = true;
@@ -170,7 +172,7 @@ class CategoryAdsItemsCard extends StatelessWidget {
                             } else {
                               Provider.of<Products>(context, listen: false)
                                   .updateLikes(id, likes, index,kindLike);
-                              likesList.add('id');
+                              likesList.add(id);
                             }
                           } else {
                             Provider.of<Products>(context, listen: false)
