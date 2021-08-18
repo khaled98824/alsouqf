@@ -104,7 +104,7 @@ class AdsOfCategoryItems extends StatelessWidget {
                       case ConnectionState.waiting: return CircularProgressIndicator();
                       default:
                         return CategoryAdsItemsCard(
-                        image: snapShots.data.documents[index]['imagesUrl'][1],
+                        image: snapShots.data.documents[index]['imagesUrl'][0],
                         title: snapShots.data.documents[index]['name'],
                         country: snapShots.data.documents[index]['area'],
                         price: snapShots.data.documents[index]['price'],

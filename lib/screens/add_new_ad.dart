@@ -90,22 +90,20 @@ class _AddNewAdState extends State<AddNewAd> {
 
   bool choseCategory = false;
   bool choseCategory2 = true;
-  bool showInfoSelected =false;
+  bool showInfoSelected = false;
   bool statusShow = true;
   bool showAreaTextField = false;
-  bool valueSelectGps= false;
-  bool allZonesShow =true;
-  bool currentZoneShow= false;
+  bool valueSelectGps = false;
+  bool allZonesShow = true;
+  bool currentZoneShow = false;
 
   String category2 = '';
 
-
   String category = '';
-  List<String> dropItemsArea = [
+  List<String> dropItemsArea = [];
 
-  ];
+  var dropSelectItemArea;
 
-  var dropSelectItemArea ;
   String area = '';
   String area2 = '';
   String description;
@@ -122,9 +120,7 @@ class _AddNewAdState extends State<AddNewAd> {
   final _formkey = GlobalKey<FormState>();
 
   var status = 'مستعمل';
-  List<String> urlImages = [
-    'https://firebasestorage.googleapis.com/v0/b/souq-alfurat-89023.appspot.com/o/WhatsApp%20Image%202020-09-15%20at%2011.23.35%20AM.jpeg?alt=media&token=a7c3f2d7-2629-4519-9c61-93444f989688',
-  ];
+  List<String> urlImages = [];
   String imageUrl;
 
   upImage() async {
@@ -164,8 +160,8 @@ class _AddNewAdState extends State<AddNewAd> {
     imageG = await ImagePicker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 100,
-      maxWidth: 1000,
-      maxHeight: 950,
+      maxWidth: 1800,
+      maxHeight: 1150,
     );
     setState(() {
       _image = imageG;
@@ -311,15 +307,16 @@ class _AddNewAdState extends State<AddNewAd> {
     };
   }
 
-  getCurrentAddress()async{
+  getCurrentAddress() async {
     LocationService _location = LocationService();
     await _location.sendLocationToDataBase(context);
-    area ='${_location.countryName} -${_location.adminArea}';
+    area = '${_location.countryName} -${_location.adminArea}';
     setState(() {
       currentZoneShow = true;
     });
     print('area == $area');
   }
+
   Widget build(BuildContext context) {
     final userGetData =
         Provider.of<Auth>(context, listen: false).gitCurrentUserInfo();
@@ -587,18 +584,20 @@ class _AddNewAdState extends State<AddNewAd> {
                                   )),
                             ],
                           ),
-                         showInfoSelected? infoSelected():Container()
+                          showInfoSelected ? infoSelected() : Container()
                         ],
                       ),
                     ),
                     lineBorder(),
-                    choseCategory? Column(
-                      children: [
-                        buildFilterChips(),
-                        lineBorder(),
-                        choseFirstChip ? buildActionChips() : Container(),
-                      ],
-                    ):Container(),
+                    choseCategory
+                        ? Column(
+                            children: [
+                              buildFilterChips(),
+                              lineBorder(),
+                              choseFirstChip ? buildActionChips() : Container(),
+                            ],
+                          )
+                        : Container(),
                     !choseCategory
                         ? Column(
                             children: [
@@ -769,101 +768,113 @@ class _AddNewAdState extends State<AddNewAd> {
                               ),
                               lineBorder(),
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 1,horizontal: 10.0),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 1, horizontal: 10.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Transform.scale(
-                                      scale:1.1,
-                                      child: Switch.adaptive(value: valueSelectGps, onChanged: (val){
-                                        setState(() {
-                                          allZonesShow = !allZonesShow;
-                                          this.valueSelectGps =val;
-                                          if(val){
-                                            print(val);
-                                            allZonesShow=false;
-                                            getCurrentAddress();
-                                          }else{
-                                            area='';
-                                            area2='';
-                                            print(val);
-                                          }
-                                        });
-                                      })
-                                    ),
+                                        scale: 1.1,
+                                        child: Switch.adaptive(
+                                            value: valueSelectGps,
+                                            onChanged: (val) {
+                                              setState(() {
+                                                allZonesShow = !allZonesShow;
+                                                this.valueSelectGps = val;
+                                                if (val) {
+                                                  print(val);
+                                                  allZonesShow = false;
+                                                  Utils.showSnackBar(
+                                                    context,
+                                                    'انتظر حتى يتم التقاط موقعك الحالي..',
+                                                  );
+                                                  getCurrentAddress();
+                                                } else {
+                                                  area = '';
+                                                  area2 = '';
+                                                  print(val);
+                                                }
+                                              });
+                                            })),
                                     Text(
                                       'تحديد الموقع الحالي ',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontSize: 12,
                                           fontFamily:
-                                          'Montserrat-Arabic Regular',
+                                              'Montserrat-Arabic Regular',
                                           height: 1),
                                     ),
                                   ],
                                 ),
                               ),
                               lineBorder(),
-                              currentZoneShow ? Container(
-                                color: Colors.grey.shade300,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Spacer(),
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 4, top: 4),
-                                      child: Text(
-                                        '  $area',
-                                        style: Theme
-                                            .of(context)
-                                            .textTheme
-                                            .headline3,
-                                        textAlign: TextAlign.center,
+                              currentZoneShow
+                                  ? Container(
+                                      color: Colors.grey.shade300,
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Spacer(),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4, top: 4),
+                                            child: Text(
+                                              '  $area',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline3,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          Spacer(),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4, top: 4),
+                                            child: Text(
+                                              ': المنطقة ',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline3,
+                                              textAlign: TextAlign.end,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 8,
+                                          )
+                                        ],
                                       ),
-                                    ),
-                                    Spacer(),
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 4, top: 4),
-                                      child: Text(
-                                        ': المنطقة ',
-                                        style: Theme
-                                            .of(context)
-                                            .textTheme
-                                            .headline3,
-                                        textAlign: TextAlign.end,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 8,
                                     )
-                                  ],
-                                ),
-                              ):Container(),
-                             allZonesShow ? Container(
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 10,top:5 ),
-                                  child: Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    alignment: WrapAlignment.end,
-                                    children: <Widget>[
-
-                                      Text(
-                                        ' : إختر المنطقة ',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            fontFamily:
-                                                'Montserrat-Arabic Regular',
-                                            height: 1),
+                                  : Container(),
+                              allZonesShow
+                                  ? Container(
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.only(right: 10, top: 5),
+                                        child: Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          alignment: WrapAlignment.end,
+                                          children: <Widget>[
+                                            Text(
+                                              ' : إختر المنطقة ',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontFamily:
+                                                      'Montserrat-Arabic Regular',
+                                                  height: 1),
+                                            ),
+                                            buildActionChipsArea(),
+                                          ],
+                                        ),
                                       ),
-                                      buildActionChipsArea(),
-                                    ],
-                                  ),
-                                ),
-                              ):Container(),
+                                    )
+                                  : Container(),
                               lineBorder(),
                               Container(
                                 child: Wrap(
@@ -1047,7 +1058,7 @@ class _AddNewAdState extends State<AddNewAd> {
                                               likes: likes,
                                             );
 
-                                            if (urlImages.length > 1) {
+                                            if (urlImages.length > 0) {
                                               if (widget.isEdit) {
                                                 print(widget.id);
                                                 try {
@@ -1057,7 +1068,9 @@ class _AddNewAdState extends State<AddNewAd> {
                                                           listen: false)
                                                       .updateProduct(widget.id,
                                                           _editedProduct);
-                                                  Navigator.popAndPushNamed(context, HomeScreen.routeName);
+                                                  Navigator.popAndPushNamed(
+                                                      context,
+                                                      HomeScreen.routeName);
                                                 } catch (e) {
                                                   await showDialog(
                                                       context: context,
@@ -1085,8 +1098,11 @@ class _AddNewAdState extends State<AddNewAd> {
                                                           listen: false)
                                                       .addProduct(
                                                           _editedProduct);
-                                                  Navigator.popAndPushNamed(context, HomeScreen.routeName);
-                                                  Utils.showSnackBar(context, 'تم حفظ إعلانك');
+                                                  Navigator.popAndPushNamed(
+                                                      context,
+                                                      HomeScreen.routeName);
+                                                  Utils.showSnackBar(
+                                                      context, 'تم حفظ إعلانك');
                                                 } catch (e) {
                                                   await showDialog(
                                                       context: context,
@@ -1226,7 +1242,8 @@ class _AddNewAdState extends State<AddNewAd> {
   List<ActionChipData> farmingList = FarmingList.all;
   List<ActionChipData> livestocksList = LivestocksList.all;
   List<ActionChipData> foodList = FoodList.all;
-  List<ActionChipData> occupationsAndServicesList = OccupationsAndServicesList.all;
+  List<ActionChipData> occupationsAndServicesList =
+      OccupationsAndServicesList.all;
   List<ActionChipData> gamesList = GamesList.all;
 
   List<ActionChipData> carsList = CarsList.all;
@@ -1259,7 +1276,7 @@ class _AddNewAdState extends State<AddNewAd> {
                   backgroundColor: filterChip.color.withOpacity(0.1),
                   onSelected: (isSelected) {
                     setState(() {
-                      category2 ='';
+                      category2 = '';
                       filterChips = filterChips.map((otherChip) {
                         return filterChip == otherChip
                             ? otherChip.copy(isSelected: isSelected)
@@ -1283,10 +1300,10 @@ class _AddNewAdState extends State<AddNewAd> {
                           actionChips3 = homeList;
                           choseFirstChip = true;
                           break;
-                      case 'ألبسة':
-                      actionChips3 = clothesList;
-                      choseFirstChip = true;
-                      break;
+                        case 'ألبسة':
+                          actionChips3 = clothesList;
+                          choseFirstChip = true;
+                          break;
                         case 'الزراعة':
                           actionChips3 = farmingList;
                           choseFirstChip = true;
@@ -1309,12 +1326,14 @@ class _AddNewAdState extends State<AddNewAd> {
                           break;
                         case 'المعدات والشاحنات':
                           choseFirstChip = false;
+                          choseCategory = false;
                           break;
                         case 'وظائف وأعمال':
                           choseFirstChip = false;
+                          choseCategory = false;
                           break;
                       }
-                      showInfoSelected =true;
+                      showInfoSelected = true;
                       category = filterChip.label;
                     });
                   },
@@ -1333,76 +1352,75 @@ class _AddNewAdState extends State<AddNewAd> {
         spacing: spacing,
         children: actionChips3
             .map((actionChip) => ActionChip(
-                  avatar: Icon(
-                    actionChip.icon,
-                    color: actionChip.iconColor,
+                avatar: Icon(
+                  actionChip.icon,
+                  color: actionChip.iconColor,
+                ),
+                backgroundColor: Colors.grey[200],
+                label: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 1.0, horizontal: 4.0),
+                  child: Text(
+                    actionChip.label,
+                    textAlign: TextAlign.center,
                   ),
-                  backgroundColor: Colors.grey[200],
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1.0,horizontal: 4.0),
-                    child: Text(
-                      actionChip.label,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  labelStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontFamily: 'Montserrat-Arabic Regular'),
-                  onPressed: () {
-                    setState(() {
-                      choseCategory = false;
-                    });
-                    category2 = actionChip.label;
-                    // Utils.showSnackBar(
-                    //   context,
-                    //   'Do action "${actionChip.label}"...',
-                    // );
-                  }
-                ))
+                ),
+                labelStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontFamily: 'Montserrat-Arabic Regular'),
+                onPressed: () {
+                  setState(() {
+                    choseCategory = false;
+                  });
+                  category2 = actionChip.label;
+                  // Utils.showSnackBar(
+                  //   context,
+                  //   'Do action "${actionChip.label}"...',
+                  // );
+                }))
             .toList(),
       );
 
   //action chips category
   Widget buildActionChipsArea() => Wrap(
-    crossAxisAlignment: WrapCrossAlignment.end,
-    alignment: WrapAlignment.spaceEvenly,
-    runSpacing: spacing,
-    spacing: spacing,
-    children: dropItemsArea
-        .map((actionChip) => ActionChip(
-        avatar: Icon(
-          Icons.location_city,
-          color: Colors.amber,
-        ),
-        backgroundColor: Colors.grey[200],
-        label: Text(
-          actionChip,
-          textAlign: TextAlign.center,
-        ),
-        labelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontSize: 12,
-            fontFamily: 'Montserrat-Arabic Regular'),
-        onPressed: () {
-          setState(() {
-            area =actionChip;
-            currentZoneShow =true;
-            allZonesShow =false;
-          });
+        crossAxisAlignment: WrapCrossAlignment.end,
+        alignment: WrapAlignment.spaceEvenly,
+        runSpacing: spacing,
+        spacing: spacing,
+        children: dropItemsArea
+            .map((actionChip) => ActionChip(
+                avatar: Icon(
+                  Icons.location_city,
+                  color: Colors.amber,
+                ),
+                backgroundColor: Colors.grey[200],
+                label: Text(
+                  actionChip,
+                  textAlign: TextAlign.center,
+                ),
+                labelStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontFamily: 'Montserrat-Arabic Regular'),
+                onPressed: () {
+                  setState(() {
+                    area = actionChip;
+                    currentZoneShow = true;
+                    allZonesShow = false;
+                  });
 
-          // Utils.showSnackBar(
-          //   context,
-          //   'Do action "${actionChip.label}"...',
-          // );
-        }
-    ))
-        .toList(),
-  );
+                  // Utils.showSnackBar(
+                  //   context,
+                  //   'Do action "${actionChip.label}"...',
+                  // );
+                }))
+            .toList(),
+      );
 
-  Widget infoSelected(){
+  Widget infoSelected() {
     return Column(
       children: [
         Container(
@@ -1416,10 +1434,7 @@ class _AddNewAdState extends State<AddNewAd> {
                 padding: const EdgeInsets.only(bottom: 4, top: 4),
                 child: Text(
                   '  $category',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline3,
+                  style: Theme.of(context).textTheme.headline3,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -1428,10 +1443,7 @@ class _AddNewAdState extends State<AddNewAd> {
                 padding: const EdgeInsets.only(bottom: 4, top: 4),
                 child: Text(
                   ': القسم الرئيسي  ',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline3,
+                  style: Theme.of(context).textTheme.headline3,
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -1460,10 +1472,7 @@ class _AddNewAdState extends State<AddNewAd> {
                 padding: const EdgeInsets.only(bottom: 4, top: 4),
                 child: Text(
                   '  $category2',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline3,
+                  style: Theme.of(context).textTheme.headline3,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -1472,10 +1481,7 @@ class _AddNewAdState extends State<AddNewAd> {
                 padding: const EdgeInsets.only(bottom: 4, top: 4),
                 child: Text(
                   ': القسم الفرعي  ',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline3,
+                  style: Theme.of(context).textTheme.headline3,
                   textAlign: TextAlign.end,
                 ),
               ),

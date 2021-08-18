@@ -23,6 +23,7 @@ class Auth with ChangeNotifier {
   String uid2;
 
   String nameUser;
+  int userAdsCount;
   String emailUser;
   String areaUser;
   String dateUser;
@@ -106,6 +107,7 @@ class Auth with ChangeNotifier {
           'password': password,
           "time": DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now()),
           'imageUrl': imageUrl,
+          'adsCount':0,
         });
 
       //update token
@@ -138,6 +140,7 @@ class Auth with ChangeNotifier {
     areaUser = documentsUser['area'];
     dateUser = documentsUser['time'];
     imageUserUrl = documentsUser['imageUrl'];
+    userAdsCount = documentsUser['adsCount'];
     notifyListeners();
     return documentsUser;
   }

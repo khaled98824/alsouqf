@@ -19,7 +19,7 @@ class _SearchAreaDesignState extends State<SearchAreaDesign> {
           height: 37,
           // width: 330,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(40), color: Colors.grey[300]),
+              borderRadius: BorderRadius.circular(40), color: Colors.grey[100]),
           child: Stack(
             alignment: Alignment(0.3, 0),
             children: <Widget>[

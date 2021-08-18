@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 
-Widget head(screenSizeWidth2) {
+Widget head(MediaQueryData screenSize) {
   return Column(
     children: <Widget>[
       Container(
           child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          screenSizeWidth2 < 380
-              ? SizedBox(
-                  width: 3,
-                )
-              : SizedBox(
-                  width: 5,
+         SizedBox(
+                  width: screenSize.size.width *0.1 -10,
                 ),
           Text(
             'بيع واشتري كل ما تريد بكل سهولة',
@@ -24,15 +20,12 @@ Widget head(screenSizeWidth2) {
               height: 1,
             ),
           ),
-          Padding(
-              padding: EdgeInsets.only(
-                  right: screenSizeWidth2 < 380 ? 8 : 13, left: 2),
-              child: Image.asset(
-                'assets/images/logo.png',
-                height: 60,
-                width: 113,
-                fit: BoxFit.fill,
-              ))
+          Image.asset(
+            'assets/images/logo.png',
+            height: screenSize.size.height *0.1-25,
+            width: screenSize.size.width *0.2+5,
+            fit: BoxFit.fill,
+          )
         ],
       )),
     ],

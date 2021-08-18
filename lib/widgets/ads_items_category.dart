@@ -60,7 +60,7 @@ class CategoryAdsItemsCard extends StatelessWidget {
                 image,
                 fit: BoxFit.contain,
                 height: 100,
-                width: 300,
+                width: size.width/2,
               )),
           Container(
               height: 150,
@@ -108,13 +108,17 @@ class CategoryAdsItemsCard extends StatelessWidget {
                             Padding(
                               padding:
                               const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text("$title".toUpperCase(),
-                                  textAlign: TextAlign.right,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.headline3),
+                              child: SizedBox(
+                                width: size.width *0.4,
+                                child: Text("$title".toUpperCase(),
+                                    textAlign: TextAlign.right,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.headline3),
+                              ),
                             ),
                             SizedBox(
-                              width: 144,
+                              width: size.width *0.4,
                               child: Text(
                                 "$country".toUpperCase(),
                                 overflow: TextOverflow.ellipsis,

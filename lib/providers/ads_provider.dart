@@ -107,6 +107,7 @@ class Products with ChangeNotifier {
       'views': product.views,
       'likes': product.likes,
     });
+    updateUserAds();
 
     //add by api
     // final url = 'https://souq-alfurat-89023.firebaseio.com/products.json';
@@ -145,6 +146,16 @@ class Products with ChangeNotifier {
     // } catch (e) {
     //   throw e;
     // }
+  }
+
+  Future updateUserAds() async {
+    DocumentSnapshot documentsUser;
+    DocumentReference documentRef = Firestore.instance.collection('users').document(userId);
+    documentsUser = await documentRef.get();
+    await Firestore.instance.collection('users').document(userId).updateData({
+      'adsCount':documentsUser.data['adsCount']+1,
+    });
+    notifyListeners();
   }
 
   Future<void> updateProduct(String id, Product newProduct) async {

@@ -50,7 +50,6 @@ dependencies:
   carousel_pro:
   url_launcher:
   onesignal_flutter: ^2.0.0
-  flutter_native_splash: ^1.2.0
   google_sign_in:
   lottie: ^1.1.0
   sign_in_with_apple: ^3.0.0

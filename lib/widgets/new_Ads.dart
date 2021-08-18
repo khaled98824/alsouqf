@@ -18,9 +18,7 @@ class NewAds extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var ads = Provider.of<Products>(context, listen: false);
     Size size = MediaQuery.of(context).size;
-    bool isLike;
     return StreamBuilder<QuerySnapshot>(
         stream:Firestore.instance.collection('Ads2').snapshots() ,
         builder: (context,snapShots){
@@ -29,7 +27,7 @@ class NewAds extends StatelessWidget {
             case ConnectionState.waiting: return CircularProgressIndicator();
             default:
               return NewAdsCard(
-                image: snapShots.data.documents[index]['imagesUrl'][1],
+                image: snapShots.data.documents[index]['imagesUrl'][0],
                 title: snapShots.data.documents[index]['name'],
                 country: snapShots.data.documents[index]['area'],
                 price: snapShots.data.documents[index]['price'],
@@ -166,20 +164,28 @@ class NewAdsCard extends StatelessWidget {
                           children: [
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text("$title".toUpperCase(),
-                                  textAlign: TextAlign.right,
-                                  softWrap: true,
-                                  overflow: TextOverflow.clip,
-                                  style: Theme.of(context).textTheme.headline3),
+                              const EdgeInsets.symmetric(vertical: 8.0),
+                              child: SizedBox(
+                                width: size.width *0.4,
+                                child: Text("$title".toUpperCase(),
+                                    textAlign: TextAlign.right,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.headline3),
+                              ),
                             ),
-                            Text(
-                              "$country".toUpperCase(),
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                  fontFamily: 'Montserrat-Arabic Regular',
-                                  color: kPrimaryColor.withOpacity(0.5),
-                                  fontSize: 12),
+                            SizedBox(
+                              width: size.width *0.4,
+                              child: Text(
+                                "$country".toUpperCase(),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontFamily: 'Montserrat-Arabic Regular',
+                                    color: kPrimaryColor.withOpacity(0.5),
+                                    fontSize: 12),
+                              ),
                             ),
                             Text(
                               "$date".toUpperCase(),

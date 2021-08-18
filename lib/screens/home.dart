@@ -1,5 +1,6 @@
 // @dart=2.9
 
+import 'package:alsouqf/providers/full_provider.dart';
 import 'package:alsouqf/screens/requests.dart';
 import 'package:alsouqf/service/location_service.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -72,15 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
     controller.addListener(listenBottom);
     Provider.of<Auth>(context, listen: false).gitCurrentUserInfo();
 
-    //noti
+    //notification
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
-      setState(() {
+
         subtitle = notification.payload.subtitle;
         content = notification.payload.body;
         data = notification.payload.additionalData['data'];
         print(subtitle);
-      });
     });
 
     OneSignal.shared
@@ -104,53 +104,44 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    // controller.removeListener(listenBottom);
+     controller.removeListener(listenBottom);
     controller.dispose();
   }
 
   void listenBottom() {
     //final direction = controller.position.userScrollDirection;
     if (controller.position.pixels >= 200) {
-      //hideBottom();
+      Provider.of<FullDataProvider>(context,listen: false).hideBottom();
     } else {
-      //showBottom();
+      Provider.of<FullDataProvider>(context,listen: false).showBottom();
     }
   }
 
-  void showBottom() {
-    if (!bottomIsVisible) setState(() => bottomIsVisible = true);
-  }
-
-  void hideBottom() {
-    if (bottomIsVisible) setState(() => bottomIsVisible = false);
-  }
 
   @override
   Widget build(BuildContext context) {
     final screenSizeWidth = MediaQuery.of(context).size.width;
-    final getAllData =
-        Provider.of<Products>(context, listen: false).fetchNewAds(false);
+    final screenSize = MediaQuery.of(context);
     return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade300,
         body: SafeArea(
           child: SingleChildScrollView(
             controller: controller,
             child: Column(
               children: [
-                head(screenSizeWidth),
-                SizedBox(
-                  height: 4,
-                ),
-                SearchAreaDesign(),
-                SizedBox(
-                  height: 12,
-                ),
                 Container(
-                  height: 32,
+
+                  height:(screenSize.size.height - screenSize.padding.top) *0.1 -20 ,
+                    child: head(screenSize)),
+                Container(
+                    padding: EdgeInsets.only(bottom: 5),
+                    child: SearchAreaDesign()),
+                Container(
+                  height: (screenSize.size.height - screenSize.padding.top) *0.1 -34,
                   width: MediaQuery.of(context).size.width - 50,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
-                      color: Colors.grey[200]),
+                      color: Colors.grey[100]),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -219,26 +210,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 showSliderAds
                     ? Container(
                         width: screenSizeWidth - 3,
-                        height: 105,
+                        height: (screenSize.size.height - screenSize.padding.top) *0.1 +36,
                         child: CarouselSlider(
-                            items: [
-                              Image.network(adImagesUrlF[0],fit:BoxFit.fill,),
-                              Image.network(adImagesUrlF[1],fit:BoxFit.fill),
-                              Image.network(adImagesUrlF[2],fit:BoxFit.fill),
-
-                            ], options: CarouselOptions(
-                          autoPlay: true,
-                          aspectRatio: 0.5,
-                          pauseAutoPlayOnTouch: true,
-                          viewportFraction: 1,
-                          pauseAutoPlayOnManualNavigate: true,
-                          autoPlayAnimationDuration: Duration(milliseconds: 1400),
-                          autoPlayInterval: Duration(seconds: 4),
-                          enableInfiniteScroll: true,
-
-                        )
-                        )
-                      )
+                            items: adImagesUrlF
+                                .map((url) => FadeInImage(
+                              fit: BoxFit.fill,
+                                    placeholder:
+                                        AssetImage('assets/images/1024.jpg',),
+                                    image: NetworkImage(url,scale: 1)))
+                                .toList(),
+                            options: CarouselOptions(
+                              autoPlay: true,
+                              aspectRatio: 1,
+                              pauseAutoPlayOnTouch: true,
+                              viewportFraction: 1,
+                              pauseAutoPlayOnManualNavigate: true,
+                              autoPlayAnimationDuration: Duration(seconds: 2),
+                              autoPlayInterval: Duration(seconds: 11),
+                              enableInfiniteScroll: true,
+                              pageSnapping: true,
+                              pauseAutoPlayInFiniteScroll: true,
+                            )))
                     : CircularProgressIndicator(),
                 SizedBox(
                   height: 4,
@@ -259,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("أجهزة - إلكترونيات")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                           ItemCategory(
                             text: "السيارات - الدراجات",
@@ -271,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) => AdsOfCategory(
                                           "السيارات - الدراجات")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           )
                         ]),
                     Wrap(
@@ -288,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("الموبايل")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                           ItemCategory(
                             text: "وظائف وأعمال",
@@ -300,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("وظائف وأعمال")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           )
                         ]),
                     Wrap(
@@ -317,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("مهن وخدمات")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                           ItemCategory(
                             text: "المنزل",
@@ -329,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("المنزل")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           )
                         ]),
                     Wrap(
@@ -346,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("المعدات والشاحنات")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                           ItemCategory(
                             text: "المواشي",
@@ -358,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("المواشي")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           )
                         ]),
                     Wrap(
@@ -375,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("الزراعة")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                           ItemCategory(
                             text: "ألعاب",
@@ -387,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("ألعاب")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           )
                         ]),
                     Wrap(
@@ -404,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("ألبسة")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                           ItemCategory(
                             text: "أطعمة",
@@ -416,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("أطعمة")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           )
                         ]),
                     Wrap(
@@ -433,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) =>
                                           AdsOfCategory("طلبات المستخدمين")));
                             },
-                            screenSizeWidth2: screenSizeWidth,
+                            screenSize: screenSize,
                           ),
                         ]),
                   ],
@@ -442,10 +434,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: AnimatedContainer(
-            duration: Duration(milliseconds: 500),
-            height: bottomIsVisible ? 66 : 0,
-            child: BottomNavB()));
+        bottomNavigationBar: Consumer<FullDataProvider>(
+          builder: (context,data,_)=> AnimatedContainer(
+              duration: Duration(milliseconds: 500),
+              height: data.bottomIsVisible ? 66 : 0,
+              child: BottomNavB()),
+        ));
   }
 }
 
@@ -453,13 +447,13 @@ class ItemCategory extends StatelessWidget {
   final String text;
   final VoidCallback callback;
   final String imagePath;
-  final double screenSizeWidth2;
+  final MediaQueryData screenSize;
 
   ItemCategory({
     this.text,
     this.callback,
     this.imagePath,
-    this.screenSizeWidth2,
+    this.screenSize,
   });
 
   @override
@@ -469,10 +463,10 @@ class ItemCategory extends StatelessWidget {
       child: Card(
         elevation: 0,
         child: SizedBox(
-          width: screenSizeWidth2 > 395 ? 190 : 172,
+          width: screenSize.size.width *0.4+20,
           height: 170,
           child: Container(
-            width: 100,
+           // width: 100,
             //width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
