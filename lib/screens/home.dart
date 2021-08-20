@@ -2,22 +2,18 @@
 
 import 'package:alsouqf/providers/full_provider.dart';
 import 'package:alsouqf/screens/requests.dart';
-import 'package:alsouqf/service/location_service.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import '../providers/ads_provider.dart';
 import '../providers/auth.dart';
 import '../widgets/bottomNavBar.dart';
 import '../widgets/head.dart';
-import '../widgets/new_Ads.dart';
 import '../widgets/searchArea.dart';
 import 'ads_of_category.dart';
-import 'constants.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = "/home";
@@ -122,8 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final screenSizeWidth = MediaQuery.of(context).size.width;
     final screenSize = MediaQuery.of(context);
+    final ads = Provider.of<Products>(context,listen: false).fetchNewAds(false);
     return Scaffold(
-        backgroundColor: Colors.grey.shade300,
+        backgroundColor: Colors.blue.shade50,
         body: SafeArea(
           child: SingleChildScrollView(
             controller: controller,
@@ -216,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 .map((url) => FadeInImage(
                               fit: BoxFit.fill,
                                     placeholder:
-                                        AssetImage('assets/images/1024.jpg',),
+                                        AssetImage('assets/images/NEWLOGO.jpg',),
                                     image: NetworkImage(url,scale: 1)))
                                 .toList(),
                             options: CarouselOptions(

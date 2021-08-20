@@ -224,8 +224,7 @@ class Products with ChangeNotifier {
       newItems[index].data['likes'] = newItems[index].data['likes'] + 1;
       notifyListeners();
 
-      print('like++');
-     // if(txt =='request')requests[index].data['likes'] = requests[index].data['likes'] + 1;
+      // if(txt =='request')requests[index].data['likes'] = requests[index].data['likes'] + 1;
       //update like by api
       // final url = 'https://souq-alfurat-89023.firebaseio.com/products/$id.json';
       // await http.patch(Uri.parse(url),
@@ -350,7 +349,6 @@ class Products with ChangeNotifier {
       itemsCategory = snap;
       print(itemsCategory.length);
       itemsCategoryCount = itemsCategory.length;
-      newItems = snap;
       notifyListeners();
     } catch (e) {
       throw e;
@@ -358,7 +356,7 @@ class Products with ChangeNotifier {
   }
 
   // fetch Last Ads
-  Future<void> fetchLastAds(category) async {
+  Future<void> fetchLastAds() async {
     try {
       QuerySnapshot querySnapshot = await Firestore.instance
           .collection("Ads2")

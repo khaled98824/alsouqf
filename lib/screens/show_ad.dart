@@ -1,33 +1,24 @@
 // @dart=2.9
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/ads_provider.dart';
 import '../providers/auth.dart';
 import '../providers/chats_provider.dart';
 import '../screens/chatScreen.dart';
 import '../widgets/chat/messages.dart';
 import '../widgets/chat/new_message.dart';
-
-//import 'package:sooq1alzour/ui/Report.dart';
-//import 'package:sooq1alzour/ui/private_chat.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart';
 
 class ShowAd extends StatefulWidget {
   static const routeName = "/show-ad";
-
   String adId;
   int indexAd;
 
@@ -71,76 +62,10 @@ class _ShowAdState extends State<ShowAd> {
     super.initState();
   }
 
-  makePostRequest(token1, AdsN) async {
-    DocumentReference documentRefUser =
-        Firestore.instance.collection('users').document('currentUserId');
-    documentsUser = await documentRefUser.get();
-    print("enter");
-    final key1 =
-        'AAAAEqhhPwA:APA91bFNtgChlqlvVRjG0sYMUQUUKJpQlreNC1a0IAV_4ZZTIhdqYGq72IgGdRxnt4vt-9-yoowVbYwHzS6azKwV4GGCEm3WzVdQqS2t2JjyQcPZ5ZR_EQTmyJ69abl4cSE5nFymWR2F';
-    final uri = 'https://fcm.googleapis.com/fcm/send';
-    final headers = {
-      'Content-Type': 'application/json',
-      HttpHeaders.authorizationHeader: "key=" + key1
-    };
-    Map<String, dynamic> title = {
-      'title': "${documentsUser.data['name']} علق على  ${AdsN}",
-      "Mess": "${Messgetext}"
-    };
-    Map<String, dynamic> body = {'data': title, "to": token1};
-    String jsonBody = json.encode(body);
-    final encoding = Encoding.getByName('utf-8');
-
-    Response response = await post(
-      uri,
-      headers: headers,
-      body: jsonBody,
-      encoding: encoding,
-    );
-
-    int statusCode = response.statusCode;
-    String responseBody = response.body;
-    print(statusCode);
-    print(responseBody);
-  }
-
-  final Firestore _firestore = Firestore.instance;
-
-  Future<void> callBack() async {
-    DocumentReference documentRef;
-
-    if (messageController.text.length > 0) {
-      Messgetext = messageController.text;
-      await _firestore.collection("messages").add({
-        'text': Messgetext,
-        //'from': currentUserId,
-        'date': DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now()),
-        'name': documentsUser['name'],
-        'Ad_id': documentsAds.documentID,
-        'realTime': DateTime.now().millisecondsSinceEpoch.toString(),
-      });
-      documentRef = Firestore.instance.collection('Ads').document(adId);
-      documentsAds = await documentRef.get();
-      documentRef = Firestore.instance
-          .collection('users')
-          .document(documentsAds.data['uid']);
-      documentsUser = await documentRef.get();
-      print("token" + documentsUser.data['token']);
-      print(documentsAds.data['uid']);
-      print(documentsUser.documentID);
-      if (documentsAds.data['uid'] != 'currentUserId') {
-        makePostRequest(documentsUser.data['token'], documentsAds.data['name']);
-      }
-
-      setState(() {});
-      messageController.clear();
-      scrollController.animateTo(scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    print(adId);
     var ads = Provider.of<Products>(context, listen: false).findById(adId);
     final userId = Provider.of<Auth>(context, listen: false).uid2;
     final userId2 = Provider.of<Auth>(context, listen: false).userId;
@@ -445,7 +370,7 @@ class _ShowAdState extends State<ShowAd> {
     return Column(
       children: [
         InkWell(
-          onTap: callBack,
+          onTap: callback,
           child: Container(
             color: Colors.grey.shade300,
             child: Row(

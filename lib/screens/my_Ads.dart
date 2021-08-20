@@ -46,6 +46,7 @@ class _MyAdsState extends State<MyAds> {
                           ),
                       itemBuilder: (context, index) => InkWell(
                             onTap: () {
+
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

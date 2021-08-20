@@ -33,7 +33,6 @@ class CategoryAdsItemsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var allData= Provider.of<Products>(context).newItems;
     Size size = MediaQuery.of(context).size;
     bool isLike;
     return Container(
@@ -161,8 +160,6 @@ class CategoryAdsItemsCard extends StatelessWidget {
                       InkWell(
                         onTap: () async {
                           if (likesList.length > 1) {
-                            print(likesList);
-                            print('id   $id');
                             for (int i = 0; i < likesList.length; i++) {
                               if (likesList[i] == id) {
                                 isLike = true;

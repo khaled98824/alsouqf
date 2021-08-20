@@ -23,7 +23,7 @@ class _AdsOfCategoryState extends State<AdsOfCategory> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder(
-          future: widget.categoryName!=""? Provider.of<Products>(context,listen: false).fetchCategoryAds(widget.categoryName):Provider.of<Products>(context,listen: false).fetchLastAds(''),
+          future: widget.categoryName!=""? Provider.of<Products>(context,listen: false).fetchCategoryAds(widget.categoryName):Provider.of<Products>(context,listen: false).fetchLastAds(),
           builder: (context,data){
             if(data.connectionState ==ConnectionState.waiting){
               return  Center(child: CircularProgressIndicator());
@@ -96,6 +96,7 @@ class AdsOfCategoryItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final itemsCategory = Provider.of<Products>(context).itemsCategory;
     return  StreamBuilder<QuerySnapshot>(
                   stream:Firestore.instance.collection('Ads2').snapshots() ,
                   builder: (context,snapShots){
@@ -104,14 +105,14 @@ class AdsOfCategoryItems extends StatelessWidget {
                       case ConnectionState.waiting: return CircularProgressIndicator();
                       default:
                         return CategoryAdsItemsCard(
-                        image: snapShots.data.documents[index]['imagesUrl'][0],
-                        title: snapShots.data.documents[index]['name'],
-                        country: snapShots.data.documents[index]['area'],
-                        price: snapShots.data.documents[index]['price'],
-                        likes: snapShots.data.documents[index]['likes'],
-                        views: snapShots.data.documents[index]['views'],
-                        id: snapShots.data.documents[index].documentID,
-                        date: snapShots.data.documents[index]['date'],
+                        image: itemsCategory[index]['imagesUrl'][0],
+                        title: itemsCategory[index]['name'],
+                        country:itemsCategory[index]['area'],
+                        price: itemsCategory[index]['price'],
+                        likes: itemsCategory[index]['likes'],
+                        views: itemsCategory[index]['views'],
+                        id: itemsCategory[index].documentID,
+                        date: itemsCategory[index]['date'],
                         index: index,
                         kindLike: 'category',
                       );

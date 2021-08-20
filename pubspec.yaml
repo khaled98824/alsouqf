@@ -58,7 +58,7 @@ dependencies:
   geocoder: ^0.2.1
   location: ^3.0.0
   material_design_icons_flutter:
-
+  flutter_native_splash:
 
 
 dev_dependencies:
@@ -73,7 +73,7 @@ flutter_icons:
 
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/images/alsouq-poster.jpg
+  image: assets/images/alsouq-poster.png
   android: true
   ios: true
   android_gravity: fill
