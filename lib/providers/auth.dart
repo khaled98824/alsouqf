@@ -28,6 +28,7 @@ class Auth with ChangeNotifier {
   String areaUser;
   String dateUser;
   String imageUserUrl;
+  String fcmToken;
 
   bool get isAuth {
     return _token != null;
@@ -98,7 +99,7 @@ class Auth with ChangeNotifier {
 
       // save user info firestore
       if (signUp)
-        Firestore.instance.collection('users').document(_userId).setData({
+        FirebaseFirestore.instance.collection('users').doc(_userId).set({
           'token': _token,
           'name': name,
           'user_uid': _userId,
@@ -112,7 +113,7 @@ class Auth with ChangeNotifier {
 
       //update token
       if (!signUp)
-        Firestore.instance.collection('users').document(_userId).updateData({
+        FirebaseFirestore.instance.collection('users').doc(_userId).update({
           'token': _token,
         });
     } catch (e) {
@@ -134,20 +135,21 @@ class Auth with ChangeNotifier {
   Future gitCurrentUserInfo() async {
     DocumentSnapshot documentsUser;
     DocumentReference documentRef =
-        Firestore.instance.collection('users').document(_userId);
+    FirebaseFirestore.instance.collection('users').doc(_userId);
     documentsUser = await documentRef.get();
     nameUser = documentsUser['name'];
     areaUser = documentsUser['area'];
     dateUser = documentsUser['time'];
     imageUserUrl = documentsUser['imageUrl'];
-    userAdsCount = documentsUser['adsCount'];
+    fcmToken = documentsUser['fcmToken'];
+
     notifyListeners();
     return documentsUser;
   }
 
   //update user info
   Future updateUserInfo(name, area) async {
-    await Firestore.instance.collection('users').document(_userId).updateData({
+    await FirebaseFirestore.instance.collection('users').doc(_userId).update({
       'name': name,
       'area': area,
     });
@@ -209,7 +211,7 @@ class Auth with ChangeNotifier {
     _user = googleUser;
     final googleAuth = await googleUser.authentication;
 
-    final credential = GoogleAuthProvider.getCredential(
+    final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
       accessToken: googleAuth.accessToken,
     );
@@ -224,7 +226,7 @@ class Auth with ChangeNotifier {
               emailUser = googleUser.email,
               isAuth,
               imageUserUrl = googleUser.photoUrl,
-              Firestore.instance.collection('users').document(_userId).setData({
+      FirebaseFirestore.instance.collection('users').doc(_userId).set({
                 'token': _token,
                 'name': nameUser,
                 'user_uid': _userId,
@@ -247,8 +249,8 @@ class Auth with ChangeNotifier {
       AppleIDAuthorizationScopes.email,
       AppleIDAuthorizationScopes.fullName,
     ]);
-    final oAuthProvider = OAuthProvider(providerId: 'apple.com');
-    final credential = oAuthProvider.getCredential(
+    final oAuthProvider = OAuthProvider('apple.com');
+    final credential = oAuthProvider.credential(
         idToken: appleIdCredential.identityToken,
         accessToken: appleIdCredential.authorizationCode);
     await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
@@ -259,7 +261,7 @@ class Auth with ChangeNotifier {
       emailUser = appleIdCredential.email;
       isAuth;
       imageUserUrl = appleIdCredential.state;
-      Firestore.instance.collection('users').document(_userId).setData({
+      FirebaseFirestore.instance.collection('users').doc(_userId).set({
       'token': _token,
       'name': nameUser,
       'user_uid': _userId,

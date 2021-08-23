@@ -115,7 +115,7 @@ class _ComplaintsAndSuggestionsState extends State<ComplaintsAndSuggestions> {
                   InkWell(
                     onTap: ()async{
                       if(_formkey.currentState.validate()){
-                        Firestore.instance.collection('Complaints and Suggestions').add({
+                        FirebaseFirestore.instance.collection('Complaints and Suggestions').add({
                           'name':nameController.text,
                           'mobile': mobileController.text,
                           'kind': kindController.text,

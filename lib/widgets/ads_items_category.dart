@@ -6,7 +6,7 @@ import '../providers/ads_provider.dart';
 import '../screens/constants.dart';
 import '../screens/show_ad.dart';
 
-List likesList =[''];
+List likesList = [''];
 
 bool like = false;
 
@@ -26,7 +26,7 @@ class CategoryAdsItemsCard extends StatelessWidget {
     this.press,
   }) : super(key: key);
 
-  final String image, title, country, id, date,kindLike;
+  final String image, title, country, id, date, kindLike;
   final int likes, views, index;
   final double price;
   final Function press;
@@ -47,19 +47,22 @@ class CategoryAdsItemsCard extends StatelessWidget {
         children: <Widget>[
           GestureDetector(
               onTap: () {
-                Provider.of<Products>(context, listen: false).updateViews(id, views, index,kindLike);
+                Provider.of<Products>(context, listen: false)
+                    .updateViews(id, views, index, kindLike);
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ShowAd(
-                          adId: id,
-                        ),),);
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ShowAd(
+                      adId: id,
+                    ),
+                  ),
+                );
               },
               child: Image.network(
                 image,
                 fit: BoxFit.contain,
                 height: 100,
-                width: size.width/2,
+                width: size.width / 2,
               )),
           Container(
               height: 150,
@@ -87,13 +90,13 @@ class CategoryAdsItemsCard extends StatelessWidget {
                   InkWell(
                     onTap: () {
                       Provider.of<Products>(context, listen: false)
-                          .updateViews(id, views, index,'category');
+                          .updateViews(id, views, index, 'category');
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ShowAd(
-                                adId: id,
-                              )));
+                                    adId: id,
+                                  )));
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -106,18 +109,19 @@ class CategoryAdsItemsCard extends StatelessWidget {
                           children: [
                             Padding(
                               padding:
-                              const EdgeInsets.symmetric(vertical: 8.0),
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               child: SizedBox(
-                                width: size.width *0.4,
+                                width: size.width * 0.4,
                                 child: Text("$title".toUpperCase(),
                                     textAlign: TextAlign.right,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.headline3),
+                                    style:
+                                        Theme.of(context).textTheme.headline3),
                               ),
                             ),
                             SizedBox(
-                              width: size.width *0.4,
+                              width: size.width * 0.4,
                               child: Text(
                                 "$country".toUpperCase(),
                                 overflow: TextOverflow.ellipsis,
@@ -139,7 +143,7 @@ class CategoryAdsItemsCard extends StatelessWidget {
                             ),
                             Padding(
                               padding:
-                              const EdgeInsets.symmetric(vertical: 5.0),
+                                  const EdgeInsets.symmetric(vertical: 5.0),
                               child: Text(
                                 '\$$price'.toUpperCase(),
                                 textAlign: TextAlign.right,
@@ -172,12 +176,12 @@ class CategoryAdsItemsCard extends StatelessWidget {
                             if (isLike) {
                             } else {
                               Provider.of<Products>(context, listen: false)
-                                  .updateLikes(id, likes, index,kindLike);
+                                  .updateLikes(id, likes, index, kindLike);
                               likesList.add(id);
                             }
                           } else {
                             Provider.of<Products>(context, listen: false)
-                                .updateLikes(id, likes, index,kindLike);
+                                .updateLikes(id, likes, index, kindLike);
                             likesList.add(id);
                           }
                         },
@@ -190,10 +194,9 @@ class CategoryAdsItemsCard extends StatelessWidget {
                               size: 23,
                               color: Colors.orange,
                             ),
-
                             Consumer<Products>(
                               builder: (context, data, _) => Text(
-                                'لايك : $likes',
+                                'لايك : ${kindLike !="" ? data.listCategoryForLikes[index]['likes'].toString() : data.listCategoryForLikes[index]['likes'].toString()}',
                                 style: TextStyle(
                                     fontFamily: 'Montserrat-Arabic Regular',
                                     fontSize: 13,
@@ -213,12 +216,14 @@ class CategoryAdsItemsCard extends StatelessWidget {
                               size: 22,
                               color: Colors.orange,
                             ),
-                            Text(
-                              'مشاهدة : $views',
-                              style: TextStyle(
-                                  fontFamily: 'Montserrat-Arabic Regular',
-                                  fontSize: 13,
-                                  color: Colors.orange),
+                            Consumer<Products>(
+                              builder: (context, data, _) => Text(
+                                'مشاهدة : ${kindLike !="" ? data.listCategoryForLikes[index]['views'].toString() : data.listCategoryForLikes[index]['views'].toString()}',
+                                style: TextStyle(
+                                    fontFamily: 'Montserrat-Arabic Regular',
+                                    fontSize: 13,
+                                    color: Colors.orange),
+                              ),
                             )
                           ],
                         ),

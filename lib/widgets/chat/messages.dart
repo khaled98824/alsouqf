@@ -39,9 +39,9 @@ class Messages extends StatelessWidget {
     final userIdA = Provider.of<Auth>(context, listen: false).userId;
     privateOrG(userIdA, chatId);
     return StreamBuilder(
-      stream: Firestore.instance
+      stream: FirebaseFirestore.instance
           .collection('chat')
-          .document(chatName)
+          .doc(chatName)
           .collection(chatName)
           .orderBy('createdAt', descending: true)
           .snapshots(),
@@ -53,15 +53,15 @@ class Messages extends StatelessWidget {
         return ListView.builder(
             reverse: true,
             shrinkWrap: true,
-            itemCount: docs.documents.length,
+            itemCount: docs.docs.length,
             itemBuilder: (ctx, index) => MessageBubble(
-                  docs.documents[index]['text'],
-                  docs.documents[index]['userId'] == userId,
-                  docs.documents[index]['userName'],
-                  docs.documents[index]['user_image'],
+                  docs.docs[index]['text'],
+                  docs.docs[index]['userId'] == userId,
+                  docs.docs[index]['userName'],
+                  docs.docs[index]['user_image'],
                   key: ValueKey(
-                    docs.documents[index]['text'] +
-                        docs.documents[index]['userName'],
+                    docs.docs[index]['text'] +
+                        docs.docs[index]['userName'],
                   ),
                 ));
       },

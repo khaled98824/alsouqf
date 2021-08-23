@@ -1,9 +1,9 @@
 // @dart=2.9
 
+import 'package:alsouqf/screens/local_notification_service/local_notificaion_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class ChatsProvider with ChangeNotifier {
   List<DocumentSnapshot> listChats;
@@ -13,20 +13,19 @@ class ChatsProvider with ChangeNotifier {
   Future<List<DocumentSnapshot>> futureChats(
       adId, userId, chatName, userName, creatorId, adName) async {
     QuerySnapshot querySnapshot =
-        await Firestore.instance.collection("private_chats").getDocuments();
-    final List<DocumentSnapshot> snap = querySnapshot.documents
+        await FirebaseFirestore.instance.collection("private_chats").get();
+    final List<DocumentSnapshot> snap = querySnapshot.docs
         .where((DocumentSnapshot documentSnapshot) =>
             documentSnapshot['adId'] == adId &&
             documentSnapshot['creatorChatId'] == userId)
         .toList();
     if (snap.isNotEmpty) {
-      print('snap= ${snap[0]['userName']}');
       isCreate = true;
       print(isCreate);
     } else {
       print('save chat');
       isCreate = false;
-      Firestore.instance.collection('private_chats').add({
+      FirebaseFirestore.instance.collection('private_chats').add({
         'chatId': chatName,
         'adId': adId,
         'adName': adName,
@@ -36,7 +35,8 @@ class ChatsProvider with ChangeNotifier {
         'creatorChatName': userName,
         'creatorChatId': userId,
       });
-      getUserInfo(adName: adName, creatorId: creatorId,userName: userName);
+      await getUserInfo(adName: adName, creatorId: creatorId,userName: userName);
+      sendAndRetrieveMessagePrivate(fcmToken,'',userName,adName);
     }
     notifyListeners();
 
@@ -47,8 +47,8 @@ class ChatsProvider with ChangeNotifier {
   Future<List<DocumentSnapshot>> fetchMyChats(
       [adId, userId, chatName, userName, creatorId]) async {
     QuerySnapshot querySnapshot =
-        await Firestore.instance.collection("private_chats").getDocuments();
-    final List<DocumentSnapshot> snap = querySnapshot.documents
+        await FirebaseFirestore.instance.collection("private_chats").get();
+    final List<DocumentSnapshot> snap = querySnapshot.docs
         .where((DocumentSnapshot documentSnapshot) =>
             documentSnapshot['creatorAdId'] == userId ||documentSnapshot['creatorChatId'] == userId)
         .toList();
@@ -58,30 +58,15 @@ class ChatsProvider with ChangeNotifier {
   }
   notifyListeners();
 
-  //send notification
-  _sendNotification(adName,userName) {
-    OneSignal.shared.postNotification(OSCreateNotification(
-      additionalData: {
-        'data': 'this is our data',
-      },
-      subtitle: 'سوق الفرات',
-
-      playerIds: [osUserID],
-      content: 'قام $userName بارسال رسالة خاصة لإعلان $adName ',
-    ));
-  }
-//get id to send
-  String osUserID;
   String name;
-
+  String fcmToken ;
   Future getUserInfo({@required String adName, @required String creatorId,@required String userName,})async{
     DocumentSnapshot documentsUser;
     DocumentReference documentRef =
-    Firestore.instance.collection('users').document(creatorId);
+    FirebaseFirestore.instance.collection('users').doc(creatorId);
     documentsUser = await documentRef.get();
     name = documentsUser['name'];
-    osUserID =documentsUser['osUserID'];
-    _sendNotification(adName,userName);
+    fcmToken =documentsUser['fcmToken'];
     return documentsUser;
   }
 }

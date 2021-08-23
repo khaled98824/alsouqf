@@ -1,7 +1,7 @@
 // @dart=2.9
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import '../providers/ads_provider.dart';
 import '../providers/chats_provider.dart';
@@ -24,19 +24,17 @@ import 'screens/my_Ads.dart';
 import 'screens/show_ad.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
+///Receive message when app in background
+Future<void> backgroundHandler(RemoteMessage message){
+  print(message.data.toString());
+  print(message.notification.title);
+}
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
-  //await Firebase.initializeApp();
 
-  OneSignal.shared.init('8fc8b90f-d3a0-483c-938a-2af0f7b38bc5', iOSSettings: {
-    OSiOSSettings.autoPrompt: false,
-    OSiOSSettings.inAppLaunchUrl: false
-  });
-  OneSignal.shared
-      .setInFocusDisplayType(OSNotificationDisplayType.notification);
-  await OneSignal.shared
-      .promptUserForPushNotificationPermission(fallbackToSettings: true);
+  await Firebase.initializeApp();
+
+  FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   runApp(MyApp());
 }
 

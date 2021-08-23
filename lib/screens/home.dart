@@ -1,12 +1,15 @@
 // @dart=2.9
 
+import 'dart:async';
+import 'dart:io';
 import 'package:alsouqf/providers/full_provider.dart';
 import 'package:alsouqf/screens/requests.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import '../providers/ads_provider.dart';
 import '../providers/auth.dart';
@@ -14,6 +17,9 @@ import '../widgets/bottomNavBar.dart';
 import '../widgets/head.dart';
 import '../widgets/searchArea.dart';
 import 'ads_of_category.dart';
+import 'local_notification_service/local_notificaion_service.dart';
+import 'my_chats.dart';
+
 
 class HomeScreen extends StatefulWidget {
   static const routeName = "/home";
@@ -44,16 +50,19 @@ class _HomeScreenState extends State<HomeScreen> {
   ScrollController controller;
   bool bottomIsVisible = true;
 
+
   getUrlsForAds() async {
     DocumentSnapshot documentsAds;
-    DocumentReference documentRef = Firestore.instance
+    DocumentReference documentRef = FirebaseFirestore.instance
         .collection('UrlsForAds')
-        .document('gocqpQlhow2tfetqlGpP');
+        .doc('gocqpQlhow2tfetqlGpP');
     documentsAds = await documentRef.get();
-    adImagesUrlF = documentsAds.data['urls'];
     setState(() {
       showSliderAds = true;
     });
+    adImagesUrlF = documentsAds['urls'];
+
+
   }
 
   bool showSliderAds = false;
@@ -62,38 +71,61 @@ class _HomeScreenState extends State<HomeScreen> {
   String data = '';
 
   @override
-  void initState() {
+  Future<void> initState() {
     // TODO: implement initState
     super.initState();
+    LocalNotificationService.initialize(context);
     controller = ScrollController();
     controller.addListener(listenBottom);
     Provider.of<Auth>(context, listen: false).gitCurrentUserInfo();
 
     //notification
-    OneSignal.shared
-        .setNotificationReceivedHandler((OSNotification notification) {
 
-        subtitle = notification.payload.subtitle;
-        content = notification.payload.body;
-        data = notification.payload.additionalData['data'];
-        print(subtitle);
+    getUrlsForAds();
+    registerForMessaging();
+
+    ///opened the app from terminated state
+    FirebaseMessaging.instance.getInitialMessage().then((message){
+      if(message !=null){
+        final routeFromMessage =message.data['route'];
+        Navigator.pushNamed(context, routeFromMessage);
+      }
     });
 
-    OneSignal.shared
-        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-      print('Notification Opened');
+    ///forground work
+    FirebaseMessaging.onMessage.listen((message) {
+      if(message.notification !=null){
+        print(message.notification.body);
+        print(message.notification.title);
+
+        LocalNotificationService.display(message);
+      }
     });
 
-    OneSignal.shared.getPermissionSubscriptionState().then((state) {
-      DocumentReference ref = Firestore.instance
-          .collection('users')
-          .document(Provider.of<Auth>(context, listen: false).userId);
+    ///when the app is in background but opened
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      final routeFromMessage =message.data['route'];
+      Navigator.pushNamed(context, routeFromMessage);
+      print('  ====== route $routeFromMessage');
+    });
 
-      ref.updateData({
-        'osUserID': '${state.subscriptionStatus.userId}',
+  }
+  final FirebaseMessaging _fcm =FirebaseMessaging.instance ;
+
+  registerForMessaging()async{
+
+    DocumentReference ref = FirebaseFirestore.instance
+        .collection('users')
+        .doc(Provider.of<Auth>(context, listen: false).userId);
+    _fcm.getToken().then((token) {
+      print(token);
+      ref.update({
+        'fcmToken':token,
       });
     });
-    getUrlsForAds();
+    if (Platform.isIOS) {
+      _fcm.requestPermission(sound: true,alert: true,provisional: true);
+    }
   }
 
   @override
@@ -120,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenSize = MediaQuery.of(context);
     final ads = Provider.of<Products>(context,listen: false).fetchNewAds(false);
     return Scaffold(
-        backgroundColor: Colors.blue.shade50,
+        backgroundColor: Colors.blue.shade900,
         body: SafeArea(
           child: SingleChildScrollView(
             controller: controller,
@@ -129,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
 
                   height:(screenSize.size.height - screenSize.padding.top) *0.1 -20 ,
-                    child: head(screenSize)),
+                    child: headHomeScreen(screenSize)),
                 Container(
                     padding: EdgeInsets.only(bottom: 5),
                     child: SearchAreaDesign()),
@@ -143,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pushNamed(context, Requests.routeName);
                         },
                         child: Container(

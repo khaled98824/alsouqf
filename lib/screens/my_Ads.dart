@@ -51,14 +51,14 @@ class _MyAdsState extends State<MyAds> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ShowAd(
-                                            adId: data.myAds[index].documentID,
+                                            adId: data.myAds[index].id,
                                             indexAd: index,
                                           )));
                             },
                             child: Dismissible(
-                              key: Key(data.myAds[index].documentID),
+                              key: Key(data.myAds[index].id),
                               onDismissed: (dir) {
-                                showSnackBar(data.myAds[index].documentID);
+                                showSnackBar(data.myAds[index].id);
                               },
                               background: Container(
                                 alignment: Alignment.centerRight,
@@ -81,7 +81,7 @@ class _MyAdsState extends State<MyAds> {
                                                 builder: (context) => AddNewAd(
                                                     context,
                                                     data.myAds[index]
-                                                        .documentID,
+                                                        .id,
                                                     true)));
                                       },
                                     )),

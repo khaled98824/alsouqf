@@ -11,8 +11,8 @@ class SerchData extends SearchDelegate<String> {
 
   Future<List<DocumentSnapshot>> _future() async {
     QuerySnapshot querySnapshot =
-        await Firestore.instance.collection("Ads2").getDocuments();
-    final List<DocumentSnapshot> snap = querySnapshot.documents
+        await FirebaseFirestore.instance.collection("Ads2").get();
+    final List<DocumentSnapshot> snap = querySnapshot.docs
         .where((DocumentSnapshot documentSnapshot) =>
             documentSnapshot["name"]
                 .toString()
@@ -23,7 +23,7 @@ class SerchData extends SearchDelegate<String> {
                 .toLowerCase()
                 .contains(query.toLowerCase()))
         .toList();
-    print('length ${querySnapshot.documents.length}');
+    print('length ${querySnapshot.docs.length}');
 
     return snap;
   }

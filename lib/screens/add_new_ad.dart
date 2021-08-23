@@ -41,7 +41,7 @@ String priceText;
 double price = 0;
 int views = 0;
 int likes = 0;
-File imageG;
+var imageG;
 File image;
 File image2;
 File image3;
@@ -128,7 +128,7 @@ class _AddNewAdState extends State<AddNewAd> {
 
     var storageImage = FirebaseStorage.instance.ref().child(_image.path);
     var taskUpload = storageImage.putFile(_image);
-    imageUrl = await (await taskUpload.onComplete).ref.getDownloadURL();
+    imageUrl = await (await taskUpload).ref.getDownloadURL();
     print(imageUrl);
     loadingImage = false;
     setState(() {
@@ -157,7 +157,7 @@ class _AddNewAdState extends State<AddNewAd> {
   File _image;
 
   Future getImage(context) async {
-    imageG = await ImagePicker.pickImage(
+    imageG = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 100,
       maxWidth: 1800,
@@ -210,14 +210,14 @@ class _AddNewAdState extends State<AddNewAd> {
   //get edit info
 
   addNewZ() async {
-    var firestore = Firestore.instance;
+    var firestore = FirebaseFirestore.instance;
 
     QuerySnapshot qusListUsers =
-        await firestore.collection('ZonesIOS').getDocuments();
+        await firestore.collection('ZonesIOS').get();
     if (qusListUsers != null) {
-      for (int i = 0; qusListUsers.documents.length > newZList.length; i++) {
+      for (int i = 0; qusListUsers.docs.length > newZList.length; i++) {
         setState(() {
-          newZList.add(qusListUsers.documents[i]['Z']);
+          newZList.add(qusListUsers.docs[i]['Z']);
         });
       }
       if (newZList.length > 1) {

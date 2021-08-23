@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget head(MediaQueryData screenSize) {
+Widget headHomeScreen(MediaQueryData screenSize) {
   return Column(
     children: <Widget>[
       Container(

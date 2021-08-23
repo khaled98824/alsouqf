@@ -7,7 +7,7 @@ class LocationService {
   late String countryName;
   late String adminArea;
 
-  Firestore _service = Firestore();
+  late FirebaseFirestore _service ;
 
   sendLocationToDataBase(context) async {
     Location location = new Location();
@@ -42,8 +42,8 @@ class LocationService {
 
 
 
-    Firestore.instance.collection('sections')
-        .document().setData(
+    FirebaseFirestore.instance.collection('sections')
+        .doc().set(
       {
         'latitude': _locationData.latitude,
         'longitude': _locationData.longitude,

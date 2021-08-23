@@ -20,21 +20,21 @@ class NewAds extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return StreamBuilder<QuerySnapshot>(
-        stream:Firestore.instance.collection('Ads2').snapshots() ,
+        stream:FirebaseFirestore.instance.collection('Ads2').snapshots() ,
         builder: (context,snapShots){
           if(snapShots.hasError)return Text('error ${snapShots.error}');
           switch (snapShots.connectionState){
             case ConnectionState.waiting: return CircularProgressIndicator();
             default:
               return NewAdsCard(
-                image: snapShots.data.documents[index]['imagesUrl'][0],
-                title: snapShots.data.documents[index]['name'],
-                country: snapShots.data.documents[index]['area'],
-                price: snapShots.data.documents[index]['price'],
-                likes: snapShots.data.documents[index]['likes'],
-                views: snapShots.data.documents[index]['views'],
-                id: snapShots.data.documents[index].documentID,
-                date: snapShots.data.documents[index]['date'],
+                image: snapShots.data.docs[index]['imagesUrl'][0],
+                title: snapShots.data.docs[index]['name'],
+                country: snapShots.data.docs[index]['area'],
+                price: snapShots.data.docs[index]['price'],
+                likes: snapShots.data.docs[index]['likes'],
+                views: snapShots.data.docs[index]['views'],
+                id: snapShots.data.docs[index].id,
+                date: snapShots.data.docs[index]['date'],
                 index: index,
                 kindLike: 'newAds',
               );

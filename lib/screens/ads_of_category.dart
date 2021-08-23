@@ -60,7 +60,7 @@ class _AdsOfCategoryState extends State<AdsOfCategory> {
                         SliverToBoxAdapter(
                           child: GridView.builder(
                             scrollDirection: Axis.vertical,
-                            itemCount: Provider.of<Products>(context,listen: false).itemsCategoryCount,
+                            itemCount:widget.categoryName!=""? Provider.of<Products>(context,listen: false).itemsCategoryCount:6,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               mainAxisExtent: 260,
@@ -97,29 +97,20 @@ class AdsOfCategoryItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final itemsCategory = Provider.of<Products>(context).itemsCategory;
-    return  StreamBuilder<QuerySnapshot>(
-                  stream:Firestore.instance.collection('Ads2').snapshots() ,
-                  builder: (context,snapShots){
-                    if(snapShots.hasError)return Text('error ${snapShots.error}');
-                    switch (snapShots.connectionState){
-                      case ConnectionState.waiting: return CircularProgressIndicator();
-                      default:
-                        return CategoryAdsItemsCard(
-                        image: itemsCategory[index]['imagesUrl'][0],
-                        title: itemsCategory[index]['name'],
-                        country:itemsCategory[index]['area'],
-                        price: itemsCategory[index]['price'],
-                        likes: itemsCategory[index]['likes'],
-                        views: itemsCategory[index]['views'],
-                        id: itemsCategory[index].documentID,
-                        date: itemsCategory[index]['date'],
-                        index: index,
-                        kindLike: 'category',
-                      );
-                    }
+    final lastItems = Provider.of<Products>(context,listen: false).newItems;
 
-                  }
-                );
+    return CategoryAdsItemsCard(
+                        image: (category !=""?itemsCategory:lastItems)[index]['imagesUrl'][0],
+                        title: (category !=""?itemsCategory:lastItems)[index]['name'],
+                        country:(category !=""?itemsCategory:lastItems)[index]['area'],
+                        price: (category !=""?itemsCategory:lastItems)[index]['price'],
+                        likes: (category !=""?itemsCategory:lastItems)[index]['likes'],
+                        views: (category !=""?itemsCategory:lastItems)[index]['views'],
+                        id: (category !=""?itemsCategory:lastItems)[index].id,
+                        date: (category !=""?itemsCategory:lastItems)[index]['date'],
+                        index: index,
+                        kindLike: category,
+                      );
               }
 
 

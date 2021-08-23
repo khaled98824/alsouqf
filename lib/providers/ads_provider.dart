@@ -14,6 +14,10 @@ class Products with ChangeNotifier {
   List<DocumentSnapshot> myAds = [];
   List<DocumentSnapshot> requests = [];
   List<DocumentSnapshot> itemsCategory = [];
+  List listCategoryForLikes = [];
+  List listCLastForLikes = [];
+
+
   late int itemsCategoryCount;
   late int itemsRequestsCount;
 
@@ -40,7 +44,7 @@ class Products with ChangeNotifier {
   }
 
   DocumentSnapshot findById(String id) {
-    return newItems.firstWhere((prod) => prod.documentID == id);
+    return newItems.firstWhere((prod) => prod.id == id);
   }
 
   Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
@@ -87,7 +91,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     //add by firesrore
-    Firestore.instance.collection('Ads2').add({
+    FirebaseFirestore.instance.collection('Ads2').add({
       'date': product.time,
       'creatorName': product.creatorName,
       'name': product.name,
@@ -150,10 +154,10 @@ class Products with ChangeNotifier {
 
   Future updateUserAds() async {
     DocumentSnapshot documentsUser;
-    DocumentReference documentRef = Firestore.instance.collection('users').document(userId);
+    DocumentReference documentRef = FirebaseFirestore.instance.collection('users').doc(userId);
     documentsUser = await documentRef.get();
-    await Firestore.instance.collection('users').document(userId).updateData({
-      'adsCount':documentsUser.data['adsCount']+1,
+    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+      'adsCount':documentsUser['adsCount']+1,
     });
     notifyListeners();
   }
@@ -163,7 +167,7 @@ class Products with ChangeNotifier {
 
     print(newProduct.department);
       //update by firestor
-      Firestore.instance.collection('Ads2').document(id).setData({
+      FirebaseFirestore.instance.collection('Ads2').doc(id).set({
         'date': newProduct.time,
         'updateDate': DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now()),
         'name': newProduct.name,
@@ -217,12 +221,15 @@ class Products with ChangeNotifier {
 
   Future<void> updateLikes(String id, likes, index,String txt) async {
     if (id.length >= 0) {
-      //update like by firestore
-      Firestore.instance.collection('Ads2').document(id).updateData({
+      //update like by FirebaseFirestore
+      FirebaseFirestore.instance.collection('Ads2').doc(id).update({
         'likes': likes + 1,
+      }).then((value) {
+        listCategoryForLikes[index]['likes']++;
+
+        notifyListeners();
+
       });
-      newItems[index].data['likes'] = newItems[index].data['likes'] + 1;
-      notifyListeners();
 
       // if(txt =='request')requests[index].data['likes'] = requests[index].data['likes'] + 1;
       //update like by api
@@ -239,13 +246,13 @@ class Products with ChangeNotifier {
 
   Future<void> updateViews(String id, views, index , String txt) async {
     if (id.length >= 0) {
-      //update like by firestore
-      Firestore.instance.collection('Ads2').document(id).updateData({
+      //update like by FirebaseFirestore
+      FirebaseFirestore.instance.collection('Ads2').doc(id).update({
         'views': views + 1,
       });
-      newItems[index].data['views'] = newItems[index].data['views'] + 1;
+      listCategoryForLikes[index]['views']++;
       if(txt =='request'){
-        requests[index].data['views'] = requests[index].data['views'] + 1;
+
       }else{
 
       }
@@ -264,8 +271,8 @@ class Products with ChangeNotifier {
 
   Future<void> deleteAd(String id) async {
     try{
-      Firestore.instance.collection('Ads2').document(id).delete();
-      newItems.removeWhere((element) => element.documentID==id);
+      FirebaseFirestore.instance.collection('Ads2').doc(id).delete();
+      newItems.removeWhere((element) => element.id==id);
       notifyListeners();
     }catch(err){
       throw err;
@@ -298,9 +305,12 @@ class Products with ChangeNotifier {
     //var url = 'https://souq-alfurat-89023.firebaseio.com/products.json';
     try {
       QuerySnapshot querySnapshot =
-          await Firestore.instance.collection("Ads2").getDocuments();
-      final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
+          await FirebaseFirestore.instance.collection("Ads2").get();
+      final List<DocumentSnapshot> snap = querySnapshot.docs.toList();
       newItems = snap;
+      newItems.forEach((element) {
+        listCLastForLikes.add(element.data());
+      });
       // final res = await http.get(Uri.parse(url));
       // final extractedData = json.decode(res.body) as Map<String, dynamic>;
       //
@@ -341,13 +351,16 @@ class Products with ChangeNotifier {
   // fetch Ads Of Category
   Future<void> fetchCategoryAds(category) async {
     try {
-      QuerySnapshot querySnapshot = await Firestore.instance
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("Ads2")
           .where('category', isEqualTo: category)
-          .getDocuments();
-      final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
+          .get();
+      final List<DocumentSnapshot> snap = querySnapshot.docs.toList();
       itemsCategory = snap;
       print(itemsCategory.length);
+      itemsCategory.forEach((element) {
+        listCategoryForLikes.add(element.data());
+      });
       itemsCategoryCount = itemsCategory.length;
       notifyListeners();
     } catch (e) {
@@ -358,14 +371,17 @@ class Products with ChangeNotifier {
   // fetch Last Ads
   Future<void> fetchLastAds() async {
     try {
-      QuerySnapshot querySnapshot = await Firestore.instance
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("Ads2")
-          .getDocuments();
-      final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
+          .get();
+      final List<DocumentSnapshot> snap = querySnapshot.docs.toList();
       itemsCategory = snap;
       print(itemsCategory.length);
       itemsCategoryCount = itemsCategory.length;
       newItems = snap;
+      itemsCategory.forEach((element) {
+        listCategoryForLikes.add(element.data);
+      });
       notifyListeners();
     } catch (e) {
       throw e;
@@ -375,11 +391,11 @@ class Products with ChangeNotifier {
   //fetch requests
   Future<void> fetchRequests() async {
     try {
-      QuerySnapshot querySnapshot = await Firestore.instance
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("Ads2")
           .where('isRequest', isEqualTo: true)
-          .getDocuments();
-      final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
+          .get();
+      final List<DocumentSnapshot> snap = querySnapshot.docs.toList();
       itemsCategory = snap;
       print(itemsCategory.length);
       itemsRequestsCount = itemsCategory.length;
@@ -396,11 +412,11 @@ class Products with ChangeNotifier {
   Future<void> fetchMyAds(creatorId) async {
     print('crator id f $creatorId');
     try {
-      QuerySnapshot querySnapshot = await Firestore.instance
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("Ads2")
           .where('creatorId', isEqualTo: creatorId)
-          .getDocuments();
-      final List<DocumentSnapshot> snap = querySnapshot.documents.toList();
+          .get();
+      final List<DocumentSnapshot> snap = querySnapshot.docs.toList();
       myAds = snap;
       notifyListeners();
     } catch (e) {

@@ -1,8 +1,8 @@
 // @dart=2.9
+import 'package:alsouqf/screens/local_notification_service/local_notificaion_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:alsouqf/providers/auth.dart';
 import 'package:alsouqf/providers/chats_provider.dart';
@@ -30,24 +30,28 @@ class _NewMessageState extends State<NewMessage> {
   final _controller = TextEditingController();
   String _enteredMessage = '';
   String userName;
+
   _sendMessage(userId,adId) async {
-    if(!widget.isPrivate && widget.creatorId!=userId){_sendNotification();}else{
+    if(!widget.isPrivate && widget.creatorId!=userId){
+      sendAndRetrieveMessage(fcmToken,_enteredMessage,name,widget.adName);
+    }else{
     }
+
     FocusScope.of(context).unfocus();
     //final user = FirebaseAuth.instance.currentUser;
-    final userData = await Firestore.instance
+    final userData = await FirebaseFirestore.instance
         .collection('users')
-        .document(userId)
+        .doc(userId)
         .get();
-    Firestore.instance.collection('chat').document(chatName).collection(chatName).add({
+    FirebaseFirestore.instance.collection('chat').doc(chatName).collection(chatName).add({
       'adId':widget.adId,
       'text': _enteredMessage,
       'createdAt': Timestamp.now(),
-      'userName': userData['name'],
+      'userName': userData.data()['name'],
       'userId': userId,
-      'user_image': userData['imageUrl']
+      'user_image': userData.data()['imageUrl']
     });
-    final a = Provider.of<ChatsProvider>(context,listen: false).futureChats(adId, userId,chatName,userData['name'],widget.creatorId,widget.adName);
+    Provider.of<ChatsProvider>(context,listen: false).futureChats(adId, userId,chatName,userData['name'],widget.creatorId,widget.adName);
     _controller.clear();
     setState(() {
       _enteredMessage = '';
@@ -67,31 +71,19 @@ class _NewMessageState extends State<NewMessage> {
     }
   }
 
-  //send notification
-  _sendNotification() {
-    OneSignal.shared.postNotification(OSCreateNotification(
-      additionalData: {
-        'data': 'this is our data',
-      },
-      subtitle: 'سوق الفرات',
-
-      playerIds: [osUserID],
-      content: 'قام $name بالتعليق على إعلانك ${widget.adName} ,${_controller.text}',
-    ));
-  }
-  //get id to send
-  String osUserID;
+  //get token to send
   String name;
-
+  String fcmToken;
   Future gitUserInfo()async{
     DocumentSnapshot documentsUser;
     DocumentReference documentRef =
-    Firestore.instance.collection('users').document(widget.creatorId);
+    FirebaseFirestore.instance.collection('users').doc(widget.creatorId);
     documentsUser = await documentRef.get();
     name = documentsUser['name'];
-    osUserID =documentsUser['osUserID'];
+    fcmToken =documentsUser['fcmToken'];
     return documentsUser;
   }
+
   @override
   void initState() {
     // TODO: implement initState

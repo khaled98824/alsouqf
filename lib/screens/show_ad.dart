@@ -277,7 +277,7 @@ class _ShowAdState extends State<ShowAd> {
                     info(ads['status'], () {}, 'الحالة'),
                     info(ads['description'], () {}, 'الوصف'),
                     info(ads['price'], () {}, 'السعر'),
-                    info(ads.documentID, () {}, '    Id'),
+                    info(ads.id, () {}, '    Id'),
                     Center(
                       child: InkWell(
                         onTap: () {

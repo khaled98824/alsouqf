@@ -32,14 +32,14 @@ dependencies:
   http:
   firebase_auth:
   shared_preferences:
-  cloud_firestore:
+  cloud_firestore: ^2.5.0
   firebase_core:
-  firebase_database: ^3.1.6
-  firebase_storage: ^3.1.6
+  firebase_database: ^7.2.0
+  firebase_storage:
   flutter_swiper:
   font_awesome_flutter: ^9.1.0
   intl: ^0.17.0
-  image_picker: ^0.6.7+3
+  image_picker: 0.8.3+2
   device_info:
   flutter_spinkit:
   fluttertoast:
@@ -49,16 +49,18 @@ dependencies:
   carousel_slider:
   carousel_pro:
   url_launcher:
-  onesignal_flutter: ^2.0.0
+
   google_sign_in:
   lottie: ^1.1.0
   sign_in_with_apple: ^3.0.0
   sign_in_apple:
   flutter_signin_button:
   geocoder: ^0.2.1
-  location: ^3.0.0
+  location: ^4.3.0
   material_design_icons_flutter:
   flutter_native_splash:
+  flutter_local_notifications:
+  firebase_messaging:
 
 
 dev_dependencies:
